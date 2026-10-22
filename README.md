@@ -2,7 +2,13 @@
 
 A free, independent print-and-play destination for the five-colour Hanabi base game. Original editable vector illustrations, a card gallery, browser printing and source/artwork downloads. GPL-3.0-only. Game design: Antoine Bauza.
 
+Print studio: https://anicolao.github.io/hanabi/
+
 Public source: https://github.com/anicolao/hanabi
+
+## Hosting
+
+GitHub Pages serves `dist/`. Every push to `main` rebuilds the SVGs and downloads, runs the unit and Playwright suites, then publishes the verified artifact. Pull requests run the same checks without deploying. The workflow is `.github/workflows/verify.yml`; there is no external hosting service or hosting credential. To deploy a fork, enable GitHub Pages with GitHub Actions as its source. Asset and download URLs are relative, so repository subpaths work without a special build.
 
 ## Run locally
 
