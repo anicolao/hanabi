@@ -1,0 +1,7 @@
+.DS_Store
+node_modules/
+.sites-runtime/
+.sites-checkout/
+*.tar.gz
+test-results/
+playwright-report/
