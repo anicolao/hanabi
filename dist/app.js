@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import { suits, cards, papers, makeSheets } from './deck.js';
+import { suits, cards, papers, makeSheets, artworkPath } from './deck.js';
 const $ = selector => document.querySelector(selector);
 let activeSuit = 'all', activeRank = 'all', pageIndex = 0, pages = [];
-const path = (id, mono = false) => `assets/${$('#art-set').value === 'svg' ? 'cards' : $('#art-set').value}/${id}${mono ? '-mono' : ''}.svg`;
+const path = (id, mono = false) => artworkPath(id, $('#art-set').value, mono);
 const visibleCards = () => cards.filter(card => (activeSuit === 'all' || card.suit.id === activeSuit) && (activeRank === 'all' || card.rank === Number(activeRank)));
 for (const suit of suits) {
   const button = document.createElement('button');
@@ -117,5 +117,17 @@ $('#print').onclick = async () => {
     window.print();
   } catch { $('#print-error').textContent='Some artwork could not load. Refresh the page and try again.'; }
   finally { button.disabled=false; }
+};
+$('#mpc-export').onclick = async () => {
+  const button=$('#mpc-export');button.disabled=true;$('#mpc-error').textContent='';
+  const set=$('#art-set').value,mono=$('#ink').value==='mono';
+  try {
+    const { exportMpcZip }=await import('./mpc.js');
+    const { blob,filename }=await exportMpcZip({set,mono,onProgress:message=>$('#mpc-status').textContent=message});
+    const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    $('#mpc-status').textContent='ZIP ready: 50 fronts, one shared back, and upload instructions.';
+  } catch(error) { $('#mpc-status').textContent='';$('#mpc-error').textContent='Could not prepare the MPC ZIP. Check your connection and try again.'; }
+  finally {button.disabled=false;}
 };
 gallery();updatePrint();

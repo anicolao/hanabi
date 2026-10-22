@@ -22,3 +22,14 @@ export function makeSheets(selection = cards, { paper = 'a4', quantity = 'deck',
   }
   return pages;
 }
+
+export const artworkSets = {
+  diagonal: { directory: 'diagonal', label: 'Painted diagonal' },
+  painted: { directory: 'painted', label: 'Painted classic' },
+  live: { directory: 'live', label: 'Hanab Live style' },
+  svg: { directory: 'cards', label: 'Original SVG' }
+};
+export function artworkPath(id, set = 'diagonal', mono = false) {
+  if (!artworkSets[set]) throw new Error('Unknown artwork set.');
+  return `assets/${artworkSets[set].directory}/${id}${mono ? '-mono' : ''}.svg`;
+}

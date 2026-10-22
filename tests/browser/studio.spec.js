@@ -9,7 +9,7 @@ test.beforeEach(async({page})=>{await page.goto('/');});
 test('opens directly to printing with no marketing or rules sections',async({page})=>{
   await expect(page.getByRole('heading',{name:'Hanabi Print cards'})).toBeVisible();
   await expect(page.getByRole('button',{name:'Print / save PDF'})).toBeInViewport();
-  await expect(page.locator('#art-set')).toHaveValue('painted');
+  await expect(page.locator('#art-set')).toHaveValue('diagonal');
   await expect(page.locator('.hero,#play,.open-source')).toHaveCount(0);
   await expect(page.locator('#gallery')).not.toHaveAttribute('open','');
 });
@@ -30,7 +30,7 @@ test('gallery filters, keyboard dialog, shared back and original SVG download',a
   await expect(page.getByRole('dialog')).toContainText('Shared card back');
   await expect(page.locator('#detail-image')).toHaveAttribute('src','assets/cards/back.svg');
 });
-for(const [set,directory] of [['painted','painted'],['live','live'],['svg','cards']]){
+for(const [set,directory] of [['diagonal','diagonal'],['painted','painted'],['live','live'],['svg','cards']]){
  test(`${set}: selection updates gallery, printable fronts, backs and download`,async({page,request})=>{
   await page.getByLabel('Card artwork').selectOption(set);await browse(page);
   await expect(page.locator('.card-tile img').first()).toHaveAttribute('src',`assets/${directory}/red-1.svg`);

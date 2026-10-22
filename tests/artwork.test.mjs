@@ -5,10 +5,10 @@ import { createHash } from 'node:crypto';
 import { cards } from '../dist/deck.js';
 const root=new URL('../dist/assets/',import.meta.url);
 test('every artwork set has all 25 faces, common backs, and monochrome variants',()=>{
- for(const directory of ['cards','live','painted'])for(const id of [...cards.map(c=>c.id),'back'])for(const suffix of ['','-mono']){
+ for(const directory of ['cards','live','painted','diagonal'])for(const id of [...cards.map(c=>c.id),'back'])for(const suffix of ['','-mono']){
   const url=new URL(`${directory}/${id}${suffix}.svg`,root);assert.ok(existsSync(url),url.pathname);
   const svg=readFileSync(url,'utf8');assert.match(svg,/<svg/);assert.match(svg,/width="63mm" height="88mm"/);assert.match(svg,/<title/);
-  if(directory==='painted'){assert.match(svg,/data:image\/jpeg;base64,/);assert.doesNotMatch(svg,/<image href="(?!data:)/);}
+  if(directory==='painted'||directory==='diagonal'){assert.match(svg,/data:image\/jpeg;base64,/);assert.doesNotMatch(svg,/<image href="(?!data:)/);}
  }
 });
 test('painted set contains 25 independent images and recorded generation prompts',()=>{
@@ -17,4 +17,15 @@ test('painted set contains 25 independent images and recorded generation prompts
  const manifest=JSON.parse(readFileSync(new URL('../artwork/prompts.json',import.meta.url),'utf8'));
  assert.equal(manifest.images.length,26);assert.equal(manifest.tool,'Built-in image_gen.imagegen');
  for(const card of cards){const prompt=manifest.images.find(i=>i.id===card.id);assert.ok(prompt?.prompt);assert.match(prompt.prompt,new RegExp(card.id==='red-1'?'red colour, value 1':card.id));}
+});
+
+test('diagonal cards retain each painting and add two black rank fields and suit icons',()=>{
+ for(const card of cards){
+  const svg=readFileSync(new URL(`diagonal/${card.id}.svg`,root),'utf8');
+  assert.equal((svg.match(/class="number-field"/g)||[]).length,2);
+  assert.equal((svg.match(/class="suit-icon"/g)||[]).length,2);
+  assert.match(svg,/fill="#080d12"/);assert.match(svg,/translate\(630 880\) rotate\(180\)/);
+  const embedded=svg.match(/data:image\/jpeg;base64,([^" ]+)/)[1];
+  assert.deepEqual(Buffer.from(embedded,'base64'),readFileSync(new URL(`painted/${card.id}.jpg`,root)));
+ }
 });

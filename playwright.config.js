@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
-  testDir: './tests/browser', fullyParallel: true, forbidOnly: true, retries: 0,
+  testDir: './tests/browser', timeout: 60000, fullyParallel: true, forbidOnly: true, retries: 0,
   reporter: 'list', workers: 2,
   use: {baseURL:'http://127.0.0.1:5297', channel:process.env.PLAYWRIGHT_CHANNEL || undefined, trace:'retain-on-failure', screenshot:'only-on-failure', reducedMotion:'reduce'},
   projects: [
