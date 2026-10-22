@@ -1,0 +1,138 @@
+{
+  "tool": "Built-in image_gen.imagegen",
+  "generated": "2026-10-22",
+  "set": "painted",
+  "notes": "One independent generation per colour/value pair; separate shared back. No generated text. Frames, values, colour labels and monochrome variants are added deterministically by scripts/painted-artwork.mjs. JPEG encoding is resized to 1400px maximum edge at quality 78 for printing and downloads; original PNGs remain in the generation tool's output directory.",
+  "images": [
+    {
+      "id": "red-1",
+      "asset": "dist/assets/painted/red-1.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait illustration for a print-and-play Hanabi card, red colour, value 1. Painterly gouache and Japanese woodblock inspired texture, hand-painted atmospheric night sky, subtle paper grain, rich deep indigo background. One bold crimson-red peony firework, a single round burst with hot vermilion tips and a fine golden rising trail, low silhouette of distant hills. Colour is unmistakably red. Main burst centered, visually rich brushwork, luminous contrast, intimate small artwork composed for a 63 by 88 mm portrait card. Full-bleed art only, no card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art. Distinctive crafted painting, not a photograph. Portrait 2:3 composition."
+    },
+    {
+      "id": "red-2",
+      "asset": "dist/assets/painted/red-2.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card, red-2. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Two crossing red comet rockets make twin rings of scarlet fire above a dark river; diagonal rising trails, broad reflected red ribbons. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong red colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "red-3",
+      "asset": "dist/assets/painted/red-3.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card, red-3. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Three crimson chrysanthemum blooms staggered in depth, ember-red drooping sparks over a low dark shoreline, asymmetric triangular arrangement. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong red colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "red-4",
+      "asset": "dist/assets/painted/red-4.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card, red-4. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: A sweeping fan of four red Roman-candle sprays spreading like a flaming folding fan, above dark hills and a red-lit lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong red colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "red-5",
+      "asset": "dist/assets/painted/red-5.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card, red-5. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: A spectacular dense finale of layered scarlet peonies, red willow trails and vermilion spark clouds, dramatic overlapping crowns above a lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong red colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "yellow-1",
+      "asset": "dist/assets/painted/yellow-1.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card, yellow-1. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: One luminous golden starburst with long fine rays, an ochre spark trail above a still midnight lake, intimate warm gold against indigo. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong yellow colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "yellow-2",
+      "asset": "dist/assets/painted/yellow-2.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card yellow-2. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Two interlocking amber rings of golden fireworks, slender saffron sparks and mirrored warm circles on dark water. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong yellow colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "yellow-3",
+      "asset": "dist/assets/painted/yellow-3.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card yellow-3. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Three golden palm fireworks, sweeping long ochre fronds that hang over a dark lakeshore, a warm falling-spark canopy. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong yellow colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "yellow-4",
+      "asset": "dist/assets/painted/yellow-4.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card yellow-4. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Four ascending golden fountains in a broad fan, bright yellow branching sprays and thin reflected gold streaks on a dark lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong yellow colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "yellow-5",
+      "asset": "dist/assets/painted/yellow-5.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card yellow-5. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: A grand golden brocade finale, many thick luminous yellow-gold willow strands raining from overlapping crowns over water. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong yellow colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "green-1",
+      "asset": "dist/assets/painted/green-1.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card green-1. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: A single emerald-green chrysanthemum firework with jade tips, pale green smoke and a slender rising trail over dark hills. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong green colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "green-2",
+      "asset": "dist/assets/painted/green-2.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card green-2. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Two jade-green comets curl into mirrored spirals above a midnight lake, mint-green spark tails and emerald reflections. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong green colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "green-3",
+      "asset": "dist/assets/painted/green-3.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card green-3. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Three emerald peony bursts form a triangle, their ragged leafy green sparks glowing through mist above a low dark shoreline. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong green colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "green-4",
+      "asset": "dist/assets/painted/green-4.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card green-4. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Four tall green fountains rise in sweeping arches, rich jade and chartreuse sparks cascading toward a dark reflective lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong green colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "green-5",
+      "asset": "dist/assets/painted/green-5.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card green-5. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: A dense finale of emerald and mint firework crowns and long jade willow trails, glowing green mist over a dark lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong green colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "blue-1",
+      "asset": "dist/assets/painted/blue-1.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card blue-1. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: One brilliant cobalt-blue dahlia firework, broad azure painted rays and pale cyan tips over a midnight lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong blue colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "blue-2",
+      "asset": "dist/assets/painted/blue-2.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card blue-2. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Two electric-blue concentric firework rings, long icy cyan comet trails and cool blue reflections in dark water. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong blue colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "blue-3",
+      "asset": "dist/assets/painted/blue-3.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card blue-3. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Three blue waterfall fireworks, flowing cobalt sparks curl down like breaking ocean waves above the lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong blue colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "blue-4",
+      "asset": "dist/assets/painted/blue-4.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card blue-4. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Four ascending icy-blue rockets erupt into wide indigo and cyan fans, strong diagonal movement and rippling blue reflections. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong blue colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "blue-5",
+      "asset": "dist/assets/painted/blue-5.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card blue-5. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: A dramatic finale of deep sapphire peonies and flowing electric-blue willow trails, pale cyan spark clouds reflected on the lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong blue colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "white-1",
+      "asset": "dist/assets/painted/white-1.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card white-1. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: One silver-white peony firework, bright ivory brushstrokes with soft pearl edges, pure white sparks over a deep indigo lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong white colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "white-2",
+      "asset": "dist/assets/painted/white-2.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card white-2. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Two interlocking silver-white firework rings, pearl comet trails, cool white reflections on black-indigo water. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong white colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "white-3",
+      "asset": "dist/assets/painted/white-3.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card white-3. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Three soft silver willow bursts with trailing white sparks and billowing pearl smoke over dark hills and water. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong white colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "white-4",
+      "asset": "dist/assets/painted/white-4.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card white-4. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: Four white comets sweep into a fan of luminous ivory chrysanthemums, bright silver painted trails reflected in a midnight lake. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong white colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "white-5",
+      "asset": "dist/assets/painted/white-5.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi card white-5. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: A magnificent silver-white finale, layered pearl peonies and dense falling white spark curtains, luminous ivory smoke over water. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. Strong white colour identity. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    },
+    {
+      "id": "back",
+      "asset": "dist/assets/painted/back.jpg",
+      "prompt": "Use case: illustration-story. Asset type: original portrait painting for a print-and-play Hanabi shared card back. Painterly gouache with Japanese woodblock inspired texture and subtle paper grain, rich deep indigo night sky. Scene: An abstract night sky filled with tiny silver, scarlet, gold, jade and cobalt sparks, soft indigo painted smoke and subtle circular firework trails. Balanced vertically reversible composition without landscape, no single dominant colour. Card-back texture, no central symbol or emblem, no words. Same cohesive handmade atmospheric deck, luminous paint, visible brushwork and soft smoke. All five colours balanced, no rank information. Compose as 2:3 portrait art for a 63 by 88 mm card, main action in middle, full bleed. No card frame, no typography, no letters or numbers, no logos, no watermarks. Avoid flat vector graphics, UI graphics, geometric clip art, photorealism."
+    }
+  ]
+}

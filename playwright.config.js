@@ -7,5 +7,5 @@ export default defineConfig({
     {name:'desktop', use:{browserName:'chromium', viewport:{width:1440,height:1000}}},
     {name:'phone', use:{browserName:'chromium', viewport:{width:393,height:852}}}
   ],
-  webServer: {command:'npm run dev',url:'http://127.0.0.1:5297',reuseExistingServer:!process.env.CI}
+  webServer: {stdout:'ignore',stderr:'ignore',command:'npm run dev',url:'http://127.0.0.1:5297',reuseExistingServer:!process.env.CI}
 });

@@ -14,3 +14,9 @@ Rules references (checked 2026-10-22):
 - https://github.com/Hanabi-Live/hanabi-live/blob/main/docs/rules.md (deck composition)
 
 The site gives an original brief play aid, rather than replacing the linked rulebook. Only the five-colour base game is included; expansion suits and variants are outside this edition.
+
+## Additional artwork sets (2026-10-22)
+
+Painted illustrations: generated separately for each of the 25 colour/value pairs and one common back using the built-in image_gen tool. Final card labels, frames and reversible-back composition are constructed by scripts/painted-artwork.mjs. The final JPEGs are checked into dist/assets/painted; artwork/prompts.json preserves the prompt set and provenance. These project contributions are distributed under GPL-3.0-only to the extent copyright applies.
+
+Hanab Live style: the five pip path functions in references/hanab-live/pips.js are adapted from the GPLv3 Hanab Live project by its contributors, inspected at commit 647515eec6c03c79030e05f964c0e22e44938ed6. Upstream source: https://github.com/Hanabi-Live/hanabi-live/blob/647515eec6c03c79030e05f964c0e22e44938ed6/packages/client/src/game/ui/drawPipFunctions.ts . Print layout also references drawCards.ts at that commit. Preserve references/hanab-live/LICENSE and README.md when redistributing. White replaces the usual purple fifth suit in this adaptation; it does not reproduce Hanab Live's complete variant client or imply endorsement.

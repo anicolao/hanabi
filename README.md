@@ -1,43 +1,51 @@
-# Hanabi · Print Studio
+# Hanabi card printer
 
-A free, independent print-and-play destination for the five-colour Hanabi base game. Original editable vector illustrations, a card gallery, browser printing and source/artwork downloads. GPL-3.0-only. Game design: Antoine Bauza.
+https://anicolao.github.io/hanabi/ · [Source](https://github.com/anicolao/hanabi)
 
-Print studio: https://anicolao.github.io/hanabi/
+A static print workspace for Hanabi's 50-card, five-colour base deck. Choose artwork, paper and sides; print or save a PDF. No landing page, rules section, account, or backend.
 
-Public source: https://github.com/anicolao/hanabi
+## Artwork sets
 
-## Hosting
+- **Painted (generated)**: 25 independently generated gouache-style fireworks paintings, one per colour/value combination, plus a shared back. Source JPEGs are in `dist/assets/painted/`; standalone SVG card files embed the paintings and add consistent vector values and written colours. The imagery is raster artwork, not procedural vector illustrations. The back blends its painting with its 180° rotation to make the printed back exactly reversible. Black-and-white cards use a saturation filter and retain explicit suit names. Generation prompts and tool provenance are in `artwork/prompts.json`.
+- **Hanab Live style**: counted suit pips, large coloured/outlined values, pale faces and a gray common back. Adapted from the GPLv3 Hanab Live project; attribution, reference commit, license and the five upstream pip paths are in `references/hanab-live/`. This print adaptation uses white for the fifth suit; the physical deck composition remains identical across all sets.
+- **Original SVG**: the first vector fireworks set, preserved unchanged in `dist/assets/cards/`, with its original black-and-white variant.
 
-GitHub Pages serves `dist/`. Every push to `main` rebuilds the SVGs and downloads, runs the unit and Playwright suites, then publishes the verified artifact. Pull requests run the same checks without deploying. The workflow is `.github/workflows/verify.yml`; there is no external hosting service or hosting credential. To deploy a fork, enable GitHub Pages with GitHub Actions as its source. Asset and download URLs are relative, so repository subpaths work without a special build.
+All copies of a given colour/value use the same illustration. Each set has one common back for all 50 cards. No rank or suit is encoded on the back.
 
-## Run locally
+## Local use
 
-Requires Node.js 22+, Python 3, and the `zip` command. No runtime JavaScript dependencies, remote fonts, analytics, accounts, or backend.
+Requires Node.js 22+, Python 3, and `zip`. No runtime dependencies or remote fonts.
 
 ```sh
+npm ci
 npm run build
 npm test
 npm run dev
 ```
 
-Open http://127.0.0.1:5297. The complete site is in `dist/`; serve that directory with any static host. Downloads work offline after saving the files. ES modules require HTTP rather than opening index.html through file://.
+Open http://127.0.0.1:5297. Serve `dist/` on any static host. ES modules require HTTP rather than file://. Generated illustrations are checked in; the build does not call an image-generation service. `scripts/artwork.mjs` regenerates the original SVG art, `scripts/live-artwork.mjs` builds the Hanab Live adaptation, and `scripts/painted-artwork.mjs` frames the checked-in paintings. Build also regenerates the source and artwork ZIPs.
 
-## Print a set
+## Printing
 
-Choose full deck, A4 or US Letter, and colour or low ink. Use Print / save PDF. Match paper, portrait orientation, 100% / actual-size scale, background graphics on, headers/footers off. For duplex, flip on the long edge. Print an alignment-test pair first; back offsets can move the reverse up to ±5 mm horizontally or vertically as viewed from the back. Separate fronts and backs preserve sheet-number order; manually establish your printer's feed and stack directions with a test before running a full job.
+Deck distribution per colour: 1, 1, 1, 2, 2, 3, 3, 4, 4, 5. Full deck: six sheets / twelve interleaved front-and-back pages. Cards trim to 63 × 88 mm, nine per sheet. The last five-card sheet reflects occupied positions across the full page for long-edge duplex. Crop marks and 1 mm bleed support shared straight cuts. White diamonds at grid intersections help check front/back alignment against a light.
 
-The deck has 50 cards: each of five colours contains three 1s, two 2s, two 3s, two 4s, and one 5. Six physical sheets, twelve interleaved PDF pages, nine 63 × 88 mm cards per full sheet. Backs reflect across the full page, including partial sheets. External crop marks and 1 mm bleed support shared straight cuts. White diamonds at grid intersections help compare alignment against a light. Crop marks require a printable area within 4 mm of the Letter edge; consult your printer. Leave spare positions blank. The sampler prints one of each unique front (25 cards); gallery selection prints the current filtered cards with their proper multiplicities. Print the single-sided sheet of eight clue and three fuse markers as a separate job.
+Select A4 or US Letter, portrait, 100% / actual size, background graphics on, headers/footers off. For duplex, flip on the long edge. Print one alignment pair before the full set. Back offsets move up to ±5 mm horizontally/vertically as viewed from the back. Separate front/back jobs retain matching sheet order; test manual feed and stack direction first. Crop marks require a printable area within 4 mm of the Letter edge. Use opaque stock or identical opaque sleeves with backing cards. Keep saved PDFs at actual size too.
 
-Use opaque cardstock or identical opaque sleeves with backing cards. Hidden information is essential: test for transparency and distinguishable backs. Each suit has a written name and unique motif as well as a colour. Low-ink fronts retain shape and value in black and white. All cards share one two-way back; no suit or rank is encoded in it.
+Choose one of each for an artwork sampler, or open the card browser, filter, and choose filtered cards to print playing quantities of that subset. Tokens are a separate single-sided print job.
 
-## Edit the art
+## Tests and hosting
 
-`scripts/artwork.mjs` generates 25 colour faces, 25 monochrome faces, and two common backs. The design coordinate system is 630 × 880, exported at 63 × 88 mm. Change it and run `npm run build`, or edit an exported SVG. The build regenerates artwork and both downloadable ZIPs, so make permanent changes in the generator. `dist/deck.js` owns suit data, multiplicities, and pure print geometry. `dist/app.js` drives the gallery, accessible card dialog, print controls, and preview. `dist/style.css` contains screen and physical print layouts.
+```sh
+npx playwright install chromium
+npm run test:e2e
+# Or use installed Chrome:
+PLAYWRIGHT_CHANNEL=chrome npm run test:e2e
+```
 
-## Validation
+Unit tests cover deck counts and physical sheet geometry. Playwright covers the desktop and phone workspace, each artwork set, downloads, filters, image loading, print invocation, calibration, generated PDF page counts/dimensions and final-sheet reflection. Physical feed alignment still needs a test print.
 
-`npm test` checks deck composition, both paper sizes, all reflected positions including the final partial sheet, separate jobs, calibration, sampler, and filtered subsets. For repeatable browser QA, run `npm ci`, `npx playwright install chromium`, then `npm run test:e2e`. To use an installed Chrome instead, run `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`. The desktop and phone projects test gallery filters, keyboard dialogs, SVG downloads, print subsets, tokens, offsets, loaded artwork, ZIP downloads, print invocation, responsive overflow, and actual browser-generated PDF page counts and dimensions. Physical printer alignment still requires the test print described above.
+GitHub Pages serves `dist/`. Pushes to `main` build, run all tests, and deploy the verified artifact. Pull requests run checks without deployment. To host a fork, enable GitHub Pages with GitHub Actions as its source. Relative URLs support repository subpaths without a special build.
 
 ## License
 
-Code, original artwork, and documentation: GNU GPL version 3 only. See LICENSE and NOTICE.md. This license covers our contributions, not the original commercial game's intellectual property. No commercial Hanabi artwork is distributed.
+GPL-3.0-only for this project's code, artwork contributions and documentation. Hanab Live derived pip paths are distributed under its GPLv3 license with attribution. See LICENSE, NOTICE.md and `references/hanab-live/`. Hanabi is a game designed by Antoine Bauza; this independent project is not affiliated with its publishers or Hanab Live. The license covers these contributions, not third-party trademarks or publications.

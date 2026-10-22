@@ -2,7 +2,7 @@
 import { suits, cards, papers, makeSheets } from './deck.js';
 const $ = selector => document.querySelector(selector);
 let activeSuit = 'all', activeRank = 'all', pageIndex = 0, pages = [];
-const path = (id, mono = false) => `assets/cards/${id}${mono ? '-mono' : ''}.svg`;
+const path = (id, mono = false) => `assets/${$('#art-set').value === 'svg' ? 'cards' : $('#art-set').value}/${id}${mono ? '-mono' : ''}.svg`;
 const visibleCards = () => cards.filter(card => (activeSuit === 'all' || card.suit.id === activeSuit) && (activeRank === 'all' || card.rank === Number(activeRank)));
 for (const suit of suits) {
   const button = document.createElement('button');
@@ -16,8 +16,8 @@ function gallery() {
   $('#gallery-count').textContent = `${visible.length} unique ${visible.length === 1 ? 'front' : 'fronts'} · ${copies} playing ${copies === 1 ? 'card' : 'cards'}`;
   $('#card-grid').replaceChildren(...visible.map(card => {
     const button = document.createElement('button');
-    button.className = 'card-tile'; button.setAttribute('aria-label', `Inspect ${card.suit.name} ${card.rank}, ${card.suit.motif}, ${card.copies} ${card.copies === 1 ? 'copy' : 'copies'}`);
-    button.innerHTML = `<span class="card-mat"><img src="${path(card.id)}" alt="${card.suit.name} ${card.rank} · ${card.suit.motif}" loading="lazy" width="630" height="880"></span><span class="card-label"><span>${card.suit.name} / ${String(card.rank).padStart(2,'0')}</span><small>${card.copies} ${card.copies === 1 ? 'copy' : 'copies'} ↗</small></span>`;
+    button.className = 'card-tile'; button.setAttribute('aria-label', `Inspect ${card.suit.name} ${card.rank}, ${card.copies} ${card.copies === 1 ? 'copy' : 'copies'}`);
+    button.innerHTML = `<span class="card-mat"><img src="${path(card.id, $('#ink').value === 'mono')}" alt="${card.suit.name} ${card.rank}" loading="lazy" width="630" height="880"></span><span class="card-label"><span>${card.suit.name} / ${String(card.rank).padStart(2,'0')}</span><small>${card.copies} ${card.copies === 1 ? 'copy' : 'copies'} ↗</small></span>`;
     button.onclick = () => detail(card);
     return button;
   }));
@@ -32,10 +32,10 @@ $('.suit-filters').onclick = event => {
 $('#rank').onchange = event => { activeRank = event.target.value; gallery(); };
 function detail(card) {
   const back = !card, id = back ? 'back' : card.id;
-  $('#detail-image').src = path(id); $('#detail-image').alt = back ? 'Shared two-way firework card back' : `${card.suit.name} ${card.rank}, ${card.suit.motif}`;
-  $('#dialog-title').textContent = back ? 'One shared sky.' : `${card.suit.name} ${card.rank}`;
-  $('#detail-description').textContent = back ? 'One identical, rotationally symmetric back for every card. Use opaque stock or sleeves to keep every hand hidden. 63 × 88 mm, editable SVG.' : `${card.suit.motif} suit · ${card.copies} ${card.copies === 1 ? 'copy' : 'copies'} in the deck. The colour, written suit name, symbol, and rank work together so you can read this card in more than one way. 63 × 88 mm, editable SVG.`;
-  $('#download-card').href = path(id); $('#download-card').download = `hanabi-${id}.svg`;
+  $('#detail-image').src = path(id, $('#ink').value === 'mono'); $('#detail-image').alt = back ? 'Shared card back' : `${card.suit.name} ${card.rank}`;
+  $('#dialog-title').textContent = back ? 'Shared card back' : `${card.suit.name} ${card.rank}`;
+  $('#detail-description').textContent = back ? 'Identical back for every card. 63 × 88 mm.' : `${card.copies} ${card.copies === 1 ? 'copy' : 'copies'} in the full deck. 63 × 88 mm.`;
+  $('#download-card').href = path(id, $('#ink').value === 'mono'); $('#download-card').download = `hanabi-${id}${$('#ink').value === 'mono' ? '-mono' : ''}.svg`;
   $('#card-dialog').showModal();
 }
 $('#view-back').onclick = () => detail(null);
@@ -59,7 +59,7 @@ function marks(page, paper, opt) {
 }
 function tokenPage(opt) {
   const el = document.createElement('section'); el.className = `print-page token-page${opt.mono ? ' mono' : ''}`;
-  el.innerHTML = `<h2>A few little sparks.</h2><p>HANABI · 8 clue markers + 3 fuse markers · 22 mm diameter<br>Print one-sided at 100% scale. Cut around the dotted circles.</p><h3>Clues / available ↔ spent</h3><p>Move clue tokens between an “available” and a “spent” area of the table.</p><div class="token-row">${Array.from({length:8},()=>'<div class="token"><span>✦</span><small>CLUE</small></div>').join('')}</div><h3>Fuses / three chances</h3><p>Set these aside. Move one to the centre after each unsuccessful play.</p><div class="token-row">${Array.from({length:3},()=>'<div class="token fuse"><span>✳</span><small>FUSE</small></div>').join('')}</div><hr><h3>Before the show</h3><p>50 cards: five colours, each with 1 · 1 · 1 · 2 · 2 · 3 · 3 · 4 · 4 · 5.<br>For 2–3 players: five cards each. For 4–5 players: four cards each.<br>Keep your own cards facing away from you.</p><p>Make five ascending fireworks, one per colour. Give a clue, discard to restore a clue, or try to play. After the last draw, everyone gets one more turn. Three failed plays end the show.</p><p>Original artwork & print studio: GPL-3.0-only.<br>Hanabi is a game by Antoine Bauza. Independent fan project.</p><div class="page-label">HANABI · TOKEN SHEET · SINGLE-SIDED · ACTUAL SIZE</div>`;
+  el.innerHTML = `<h2>Hanabi tokens</h2><p>8 clue markers + 3 fuse markers · 22 mm diameter<br>Print one-sided at 100% scale. Cut around the dotted circles.</p><h3>Clues</h3><div class="token-row">${Array.from({length:8},()=>'<div class="token"><span>✦</span><small>CLUE</small></div>').join('')}</div><h3>Fuses</h3><div class="token-row">${Array.from({length:3},()=>'<div class="token fuse"><span>✳</span><small>FUSE</small></div>').join('')}</div><div class="page-label">HANABI · TOKEN SHEET · SINGLE-SIDED · ACTUAL SIZE</div>`;
   return el;
 }
 function renderPage(page, opt) {
@@ -94,14 +94,16 @@ function preview() {
   const opt=options();
   const el=renderPage(pages[pageIndex],opt); el.classList.add('preview-page'); el.setAttribute('aria-hidden','true');
   $('#preview-holder').replaceChildren(el);
-  const scale = Math.min(395 / (papers[opt.paper].height * 96 / 25.4), ($('#preview-window').clientWidth-12) / (papers[opt.paper].width*96/25.4));
+  const scale = Math.min(590 / (papers[opt.paper].height * 96 / 25.4), ($('#preview-window').clientWidth-12) / (papers[opt.paper].width*96/25.4));
   el.style.transform = `scale(${scale})`;
   $('#preview-holder').style.width = `${papers[opt.paper].width*96/25.4*scale}px`;
   $('#page-indicator').textContent = `Page ${pageIndex+1} of ${pages.length}`;
   $('#preview-description').textContent = pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
   $('#previous').disabled = pageIndex === 0; $('#next').disabled = pageIndex === pages.length-1;
 }
-for (const selector of ['#paper','#ink','#quantity','#side','#offset-x','#offset-y']) $(selector).addEventListener('change',updatePrint);
+$('#art-set').addEventListener('change', () => { gallery(); updatePrint(); });
+$('#ink').addEventListener('change', () => { gallery(); updatePrint(); });
+for (const selector of ['#paper','#quantity','#side','#offset-x','#offset-y']) $(selector).addEventListener('change',updatePrint);
 $('#previous').onclick = () => { if(pageIndex>0) {pageIndex--;preview();} };
 $('#next').onclick = () => { if(pageIndex<pages.length-1) {pageIndex++;preview();} };
 new ResizeObserver(() => { if(pages.length) preview(); }).observe($('#preview-window'));
