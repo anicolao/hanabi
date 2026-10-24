@@ -38,8 +38,8 @@ for(const card of selection)for(const mono of [false,true]){
   ? `<rect width="286" height="406" fill="#000"/><rect x="14" y="14" width="258" height="378" rx="18" fill="white"/><rect x="14" y="14" width="258" height="378" rx="18" fill="${color}" fill-opacity="${mono?0:.22}"/>`
   : `<rect width="286" height="406" fill="#151515"/><rect x="4" y="4" width="278" height="398" rx="24" fill="white"/><rect x="4" y="4" width="278" height="398" rx="24" fill="${color}" fill-opacity="${mono?0:.22}" stroke="${color}" stroke-opacity=".7" stroke-width="4"/>`;
  const label=set==='minh'?'':`<text x="143" y="389" font-family="Arial,sans-serif" font-size="9" text-anchor="middle" fill="#111">${suit.name.toUpperCase()}</text>`;
- const cornerIcon=set==='minh'?`<g class="corner-suit-icon">${pip(suit.id,54,137,.18,false,mono)}</g>`:'';
- const numeral=`<text x="19" y="110" font-family="Arial,Helvetica,sans-serif" font-size="128" font-weight="700" fill="${color}" stroke="#111" stroke-width="2.4" paint-order="stroke fill">${rank}</text>`;
+ const cornerIcon=set==='minh'?`<g class="corner-suit-icon">${pip(suit.id,54,123,.32,false,mono)}</g>`:'';
+ const numeral=`<text x="${set==='minh'?26:19}" y="${set==='minh'?92:110}" font-family="Arial,Helvetica,sans-serif" font-size="${set==='minh'?102.4:128}" font-weight="700" fill="${color}" stroke="#111" stroke-width="2.4" paint-order="stroke fill">${rank}</text>`;
  writeFileSync(new URL(`${card.id}${mono?'-mono':''}.svg`,out),`<svg xmlns="http://www.w3.org/2000/svg" width="63mm" height="88mm" viewBox="0 0 286 406" preserveAspectRatio="none" role="img" aria-labelledby="title"><title id="title">${suit.name} ${rank} · Hanab Live style</title>${suit.id==='multicolour'?rainbow:''}${face}${numeral}${cornerIcon}<g transform="translate(286 406) rotate(180)">${numeral}${cornerIcon}</g>${pips}${label}</svg>`);
 }
 for(const mono of [false,true]){
