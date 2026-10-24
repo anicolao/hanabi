@@ -73,3 +73,5 @@ Verified 2026-10-22 against the official template and product page:
 ## Minh deck
 
 Select **Minh · Hanab Live multicolour**, or open `?deck=minh`. This keeps the counted-pip Hanab Live layout, replaces the white/grey suit with rainbow diamonds and black numerals, and includes one multicolour card of each rank 1–5. Red, yellow, green and blue retain standard quantities: 40 standard cards plus 5 unique multicolour cards = 45 total. Printing, gallery counts and MPC exports use this distribution; all previous decks remain available. The MPC ZIP has 45 numbered fronts and one common back.
+
+Minh faces use symbols and numerals without printed colour labels. Both fronts and backs have a solid black border about 3 mm wide inside the trim, with black bleed for home printing and MPC export. Colour and monochrome variants share this border; inner coloured outlines and corner alignment diamonds are omitted for this deck.

@@ -33,6 +33,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   assert [c['rank'] for c in rows]==([1,2,3,4,5] if suit=='multicolour' else [1,1,1,2,2,3,3,4,4,5])
   for rank in range(1,6):assert len({hashes[c['file']] for c in rows if c['rank']==rank})==1
  first=m['cards'][0]['file'];open(sys.argv[2],'wb').write(z.read(first))
+ open(sys.argv[2]+'.back.png','wb').write(z.read('back/shared-back.png'))
  print(json.dumps({'artwork':m['artwork'],'colourMode':m['colourMode'],'fronts':len(fronts),'bytes':sum(i.file_size for i in z.infolist())}))
 `;
 for(const set of ['diagonal','painted','live','svg','minh']){
@@ -55,6 +56,15 @@ for(const set of ['diagonal','painted','live','svg','minh']){
   const pixels=await page.evaluate(async({data,mono})=>{
    const image=new Image();image.src='data:image/png;base64,'+data;await image.decode();const canvas=document.createElement('canvas');canvas.width=816;canvas.height=1110;const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);const field=[...ctx.getImageData(110,100,1,1).data];const sample=ctx.getImageData(0,0,816,1110).data;let opaque=true,gray=true;for(let i=0;i<sample.length;i+=4){if(sample[i+3]!==255)opaque=false;if(sample[i]!==sample[i+1]||sample[i+1]!==sample[i+2])gray=false;}return {field,opaque,gray};
   },{data:readFileSync(first).toString('base64'),mono:set==='live'});
+  if(set==='minh')for(const file of [first,first+'.back.png']){
+   const blackBorder=await page.evaluate(async data=>{
+    const img=new Image();img.src='data:image/png;base64,'+data;await img.decode();const canvas=document.createElement('canvas');canvas.width=816;canvas.height=1110;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);const pixels=ctx.getImageData(0,0,816,1110).data;
+    // Covers the entire bleed plus 2.5 mm inside the nominal trim on all four edges.
+    for(let y=0;y<1110;y++)for(let x=0;x<816;x++)if(x<65||x>=751||y<65||y>=1045){const i=(y*816+x)*4;if(pixels[i]||pixels[i+1]||pixels[i+2]||pixels[i+3]!==255)return false;}
+    return true;
+   },readFileSync(file).toString('base64'));
+   expect(blackBorder).toBe(true);
+  }
   expect(pixels.opaque).toBe(true);if(set==='diagonal')expect(Math.max(...pixels.field.slice(0,3))).toBeLessThan(30);if(set==='live')expect(pixels.gray).toBe(true);
  });
 }

@@ -31,12 +31,19 @@ for(const card of selection)for(const mono of [false,true]){
  if(rank>=3)pips=pip(suit.id,143,83,.4,false,mono)+pip(suit.id,143,323,.4,true,mono);
  if(rank>=4)pips+=pip(suit.id,53,203,.4,false,mono)+pip(suit.id,233,203,.4,true,mono);
  if(rank===3||rank===5)pips+=pip(suit.id,143,203,.48,false,mono);
+ const face=set==='minh'
+  ? `<rect width="286" height="406" fill="#000"/><rect x="14" y="14" width="258" height="378" rx="18" fill="white"/><rect x="14" y="14" width="258" height="378" rx="18" fill="${color}" fill-opacity="${mono?0:.22}"/>`
+  : `<rect width="286" height="406" fill="#151515"/><rect x="4" y="4" width="278" height="398" rx="24" fill="white"/><rect x="4" y="4" width="278" height="398" rx="24" fill="${color}" fill-opacity="${mono?0:.22}" stroke="${color}" stroke-opacity=".7" stroke-width="4"/>`;
+ const label=set==='minh'?'':`<text x="143" y="389" font-family="Arial,sans-serif" font-size="9" text-anchor="middle" fill="#111">${suit.name.toUpperCase()}</text>`;
  const numeral=`<text x="19" y="110" font-family="Arial,Helvetica,sans-serif" font-size="128" font-weight="700" fill="${suit.id==='multicolour'?'#111':color}" stroke="#111" stroke-width="2.4" paint-order="stroke fill">${rank}</text>`;
- writeFileSync(new URL(`${card.id}${mono?'-mono':''}.svg`,out),`<svg xmlns="http://www.w3.org/2000/svg" width="63mm" height="88mm" viewBox="0 0 286 406" preserveAspectRatio="none" role="img" aria-labelledby="title"><title id="title">${suit.name} ${rank} · Hanab Live style</title>${suit.id==='multicolour'?rainbow:''}<rect width="286" height="406" fill="#151515"/><rect x="4" y="4" width="278" height="398" rx="24" fill="white"/><rect x="4" y="4" width="278" height="398" rx="24" fill="${color}" fill-opacity="${mono?0:.22}" stroke="${color}" stroke-opacity=".7" stroke-width="4"/>${numeral}<g transform="translate(286 406) rotate(180)">${numeral}</g>${pips}<text x="143" y="389" font-family="Arial,sans-serif" font-size="9" text-anchor="middle" fill="#111">${suit.name.toUpperCase()}</text></svg>`);
+ writeFileSync(new URL(`${card.id}${mono?'-mono':''}.svg`,out),`<svg xmlns="http://www.w3.org/2000/svg" width="63mm" height="88mm" viewBox="0 0 286 406" preserveAspectRatio="none" role="img" aria-labelledby="title"><title id="title">${suit.name} ${rank} · Hanab Live style</title>${suit.id==='multicolour'?rainbow:''}${face}${numeral}<g transform="translate(286 406) rotate(180)">${numeral}</g>${pips}${label}</svg>`);
 }
 for(const mono of [false,true]){
  let pips='';for(let i=0;i<5;i++){const angle=i*Math.PI*2/5-Math.PI/2;pips+=pip(Object.keys(names)[i],143+70*Math.cos(angle),203+70*Math.sin(angle),.35,false,true);}
- writeFileSync(new URL(`back${mono?'-mono':''}.svg`,out),`<svg xmlns="http://www.w3.org/2000/svg" width="63mm" height="88mm" viewBox="0 0 286 406" preserveAspectRatio="none" role="img" aria-labelledby="title"><title id="title">Shared back · Hanab Live style</title><rect width="286" height="406" fill="${mono?'#fff':'#777'}"/><rect x="5" y="5" width="276" height="396" rx="24" fill="${mono?'#fff':'#929292'}" stroke="#222" stroke-width="5"/>${pips}</svg>`);
+ const backFace=set==='minh'
+  ? `<rect width="286" height="406" fill="#000"/><rect x="14" y="14" width="258" height="378" rx="18" fill="${mono?'#fff':'#929292'}"/>`
+  : `<rect width="286" height="406" fill="${mono?'#fff':'#777'}"/><rect x="5" y="5" width="276" height="396" rx="24" fill="${mono?'#fff':'#929292'}" stroke="#222" stroke-width="5"/>`;
+ writeFileSync(new URL(`back${mono?'-mono':''}.svg`,out),`<svg xmlns="http://www.w3.org/2000/svg" width="63mm" height="88mm" viewBox="0 0 286 406" preserveAspectRatio="none" role="img" aria-labelledby="title"><title id="title">Shared back · Hanab Live style</title>${backFace}${pips}</svg>`);
 }
 }
 console.log('Generated Hanab Live style fronts and shared backs.');

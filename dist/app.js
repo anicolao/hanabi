@@ -60,7 +60,7 @@ function marks(page, paper, opt) {
   for (let row=0; row<=3; row++) { const yy=y+row*88; line(x-3.5,yy,x-1.5,yy); line(x+190.5,yy,x+192.5,yy); }
   // Small white diamonds provide front/back alignment targets at every grid intersection.
   let diamonds = '';
-  for (let col=0;col<=3;col++) for (let row=0;row<=3;row++) diamonds += `<path d="m${x+col*63} ${y+row*88-0.65} .65 .65 -.65 .65 -.65 -.65Z" fill="white" stroke="#333" stroke-width=".1"/>`;
+  if($('#art-set').value!=='minh') for (let col=0;col<=3;col++) for (let row=0;row<=3;row++) diamonds += `<path d="m${x+col*63} ${y+row*88-0.65} .65 .65 -.65 .65 -.65 -.65Z" fill="white" stroke="#333" stroke-width=".1"/>`;
   return `<svg class="crop-marks" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="black" stroke-width=".15">${lines}</g>${diamonds}</svg>`;
 }
 function tokenPage(opt) {
@@ -73,7 +73,7 @@ function renderPage(page, opt) {
   const el = document.createElement('section'); el.className = 'print-page'; el.dataset.side = page.side; el.dataset.sheet = page.sheet;
   for (const item of page.items) {
     const bleed = document.createElement('div'); bleed.className = 'bleed';
-    bleed.style.cssText = `left:${item.x-1}mm;top:${item.y-1}mm;width:65mm;height:90mm;background:${opt.mono?'#fffdf7':'#142a36'}`;
+    bleed.style.cssText = `left:${item.x-1}mm;top:${item.y-1}mm;width:65mm;height:90mm;background:${$('#art-set').value==='minh'?'#000':opt.mono?'#fffdf7':'#142a36'}`;
     const card = document.createElement('div'); card.className = 'printed-card'; card.dataset.card = item.card.id;
     card.style.cssText = `left:${item.x}mm;top:${item.y}mm`;
     const img = document.createElement('img'); img.src = path(page.side === 'back' ? 'back' : item.card.id, opt.mono); img.alt = '';
