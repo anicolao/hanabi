@@ -30,10 +30,20 @@ test('diagonal cards retain each painting and add two black rank fields and suit
  }
 });
 
-test('Minh artwork has rainbow pips, high contrast numbers, and monochrome counterparts',()=>{
+test('Minh artwork has rainbow pips, rainbow numbers, and monochrome counterparts',()=>{
  for(const card of minhCards)for(const suffix of ['','-mono'])assert.ok(existsSync(new URL(`minh/${card.id}${suffix}.svg`,root)));
  for(let rank=1;rank<=5;rank++){
   const svg=readFileSync(new URL(`minh/multicolour-${rank}.svg`,root),'utf8');
-  assert.match(svg,/linearGradient id="rainbow"/);assert.match(svg,/fill="url\(#rainbow\)"/);assert.match(svg,/fill="#111" stroke="#111"/);
+  assert.match(svg,/linearGradient id="rainbow"/);assert.match(svg,/fill="url\(#rainbow\)"/);assert.match(svg,/<text[^>]*fill="url\(#rainbow\)"/);
  }
+});
+
+test('Minh faces have reversible corner suit icons and six distinct silhouettes',()=>{
+ const shapes=new Set();
+ for(const card of minhCards){
+  const svg=readFileSync(new URL(`minh/${card.id}.svg`,root),'utf8');
+  assert.equal((svg.match(/class="corner-suit-icon"/g)||[]).length,2);
+  if(card.rank===1)shapes.add(svg.match(/class="corner-suit-icon".*?<path d="([^"]+)"/)[1]);
+ }
+ assert.equal(shapes.size,6);
 });

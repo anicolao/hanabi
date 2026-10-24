@@ -27,7 +27,7 @@ export async function exportMpcZip({set='diagonal',mono=false,onProgress=()=>{}}
  const cards=cardsForSet(set),count=cards.reduce((sum,c)=>sum+c.copies,0);
  const images=new Map();
  for(const [i,id] of [...cards.map(card=>card.id),'back'].entries()){
-  onProgress(`Preparing image ${i+1} of 26…`);images.set(id,await pngForCard(id,set,mono));
+  onProgress(`Preparing image ${i+1} of ${cards.length+1}…`);images.set(id,await pngForCard(id,set,mono));
  }
  onProgress(`Packing ${count} fronts and the shared back…`);
  const deck=mpcDeck(set);

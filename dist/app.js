@@ -109,6 +109,7 @@ function preview() {
 }
 function deckLabels() {
  const deck=selectedCards(),count=deck.reduce((sum,c)=>sum+c.copies,0);
+ $('#quantity option[value=catalog]').textContent=`One of each · ${deck.length} cards`;
  $('#quantity option[value=deck]').textContent=`Full deck · ${count} cards`;
  $('.mpc-note').textContent=`Full ${count}-card deck + shared back. Uses the selected artwork and colour mode.`;
  $('.gallery-note').textContent=$('#art-set').value==='minh'?'Multicolour: one copy each of 1–5. Other colours: 1 × 3, 2 × 2, 3 × 2, 4 × 2, 5 × 1.':'To print a subset, choose “Filtered cards” above. Copies per colour: 1 × 3, 2 × 2, 3 × 2, 4 × 2, 5 × 1.';

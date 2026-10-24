@@ -11,7 +11,8 @@ export const cards = suits.flatMap(suit => Array.from({ length: 5 }, (_, i) => (
   id: `${suit.id}-${i + 1}`, suit, rank: i + 1, copies: multiplicities[i + 1]
 })));
 export const multicolourSuit = { id: 'multicolour', name: 'Multicolour', motif: 'Rainbow diamond', symbol: '◇', color: '#7056ad', light: '#dfd4f5' };
-export const minhCards = [...cards.filter(card => card.suit.id !== 'white'), ...Array.from({length:5}, (_, i) => ({id:`multicolour-${i+1}`, suit:multicolourSuit, rank:i+1, copies:1}))];
+export const blackSuit = { id: 'black', name: 'Black', motif: 'Hexagon', symbol: '⬢', color: '#111111', light: '#cccccc' };
+export const minhCards = [...cards.filter(card => card.suit.id !== 'white'), ...Array.from({length:5}, (_, i) => ({id:`multicolour-${i+1}`, suit:multicolourSuit, rank:i+1, copies:1})), ...Array.from({length:5}, (_, i) => ({id:`black-${i+1}`, suit:blackSuit, rank:i+1, copies:multiplicities[i+1]}))];
 export function cardsForSet(set = 'diagonal') { return set === 'minh' ? minhCards : cards; }
 export const papers = { a4: { width: 210, height: 297 }, letter: { width: 215.9, height: 279.4 } };
 export function makeSheets(selection = cards, { paper = 'a4', quantity = 'deck', side = 'both', x = 0, y = 0 } = {}) {

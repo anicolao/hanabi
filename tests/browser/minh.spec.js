@@ -1,10 +1,12 @@
 import {test,expect} from '@playwright/test';
-test('Minh share link prints exactly 45 cards and switches suits and quantities correctly',async({page})=>{
+test('Minh share link prints exactly 55 cards and switches suits and quantities correctly',async({page})=>{
  await page.goto('/?deck=minh');
  await expect(page.locator('#art-set')).toHaveValue('minh');
- await expect(page.locator('#print-total')).toHaveText('45 cards · 5 sheets · 10 PDF pages');
- await expect(page.locator('#print-pages [data-side=front] .printed-card')).toHaveCount(45);
+ await expect(page.locator('#print-total')).toHaveText('55 cards · 7 sheets · 14 PDF pages');
+ await expect(page.locator('#print-pages [data-side=front] .printed-card')).toHaveCount(55);
  for(let rank=1;rank<=5;rank++)await expect(page.locator(`#print-pages [data-side=front] [data-card="multicolour-${rank}"]`)).toHaveCount(1);
+ for(const [rank,copies] of [[1,3],[2,2],[3,2],[4,2],[5,1]])await expect(page.locator(`#print-pages [data-side=front] [data-card="black-${rank}"]`)).toHaveCount(copies);
+ await expect(page.locator('#quantity option[value=catalog]')).toHaveText('One of each · 30 cards');
  await expect(page.locator('#print-pages [data-card^=white]')).toHaveCount(0);
  await page.locator('#gallery > summary').click();
  await page.getByRole('button',{name:'Multicolour',exact:true}).click();

@@ -5,7 +5,7 @@ const inspectZip=String.raw`import sys,zipfile,json,struct,zlib,hashlib,collecti
 with zipfile.ZipFile(sys.argv[1]) as z:
  assert z.testzip() is None
  m=json.loads(z.read('manifest.json'))
- expected=45 if m['artwork']=='minh' else 50
+ expected=55 if m['artwork']=='minh' else 50
  assert m['cardCount']==expected and len(m['cards'])==expected
  fronts=[n for n in z.namelist() if n.startswith('fronts/') and n.endswith('.png')]
  backs=[n for n in z.namelist() if n.startswith('back/') and n.endswith('.png')]
@@ -27,8 +27,8 @@ with zipfile.ZipFile(sys.argv[1]) as z:
    at+=size+12
   assert density==[(11811,11811,1)]
   hashes[n]=hashlib.sha256(data).hexdigest()
- assert len({hashes[n] for n in fronts})==25
- for suit in ['red','yellow','green','blue']+(['multicolour'] if m['artwork']=='minh' else ['white']):
+ assert len({hashes[n] for n in fronts})==(30 if m['artwork']=='minh' else 25)
+ for suit in ['red','yellow','green','blue']+(['multicolour','black'] if m['artwork']=='minh' else ['white']):
   rows=[c for c in m['cards'] if c['suit']==suit]
   assert [c['rank'] for c in rows]==([1,2,3,4,5] if suit=='multicolour' else [1,1,1,2,2,3,3,4,4,5])
   for rank in range(1,6):assert len({hashes[c['file']] for c in rows if c['rank']==rank})==1
@@ -51,8 +51,8 @@ for(const set of ['diagonal','painted','live','svg','minh']){
   expect(download.suggestedFilename()).toBe(`hanabi-mpc-${set}${set==='live'?'-mono':''}.zip`);
   const first=info.outputPath('first-front.png');
   const result=JSON.parse(execFileSync('python3',['-c',inspectZip,await download.path(),first],{encoding:'utf8'}));
-  expect(result.artwork).toBe(set);expect(result.fronts).toBe(set==='minh'?45:50);expect(result.colourMode).toBe(set==='live'?'black-and-white':'colour');
-  await expect(page.locator('#mpc-status')).toContainText(`${set==='minh'?45:50} fronts, one shared back`);
+  expect(result.artwork).toBe(set);expect(result.fronts).toBe(set==='minh'?55:50);expect(result.colourMode).toBe(set==='live'?'black-and-white':'colour');
+  await expect(page.locator('#mpc-status')).toContainText(`${set==='minh'?55:50} fronts, one shared back`);
   const pixels=await page.evaluate(async({data,mono})=>{
    const image=new Image();image.src='data:image/png;base64,'+data;await image.decode();const canvas=document.createElement('canvas');canvas.width=816;canvas.height=1110;const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);const field=[...ctx.getImageData(110,100,1,1).data];const sample=ctx.getImageData(0,0,816,1110).data;let opaque=true,gray=true;for(let i=0;i<sample.length;i+=4){if(sample[i+3]!==255)opaque=false;if(sample[i]!==sample[i+1]||sample[i+1]!==sample[i+2])gray=false;}return {field,opaque,gray};
   },{data:readFileSync(first).toString('base64'),mono:set==='live'});
