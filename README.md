@@ -8,10 +8,10 @@ A static print workspace for Hanabi's 50-card, five-colour base deck. Choose art
 
 - **Painted diagonal** (default): the same 25 paintings with diagonal black rank fields, suit icons and a graphic frame. The earlier layout is retained as Painted classic.
 - **Painted classic**: 25 independently generated gouache-style fireworks paintings, one per colour/value combination, plus a shared back. Source JPEGs are in `dist/assets/painted/`; standalone SVG card files embed the paintings and add consistent vector values and written colours. The imagery is raster artwork, not procedural vector illustrations. The back blends its painting with its 180° rotation to make the printed back exactly reversible. Black-and-white cards use a saturation filter and retain explicit suit names. Generation prompts and tool provenance are in `artwork/prompts.json`.
-- **Hanab Live style**: counted suit pips, large coloured/outlined values, pale faces and a gray common back. Adapted from the GPLv3 Hanab Live project; attribution, reference commit, license and the five upstream pip paths are in `references/hanab-live/`. This print adaptation uses white for the fifth suit; the physical deck composition remains identical across all sets.
+- **Hanab Live style**: counted suit pips, large coloured/outlined values, pale faces and a gray common back. Adapted from the GPLv3 Hanab Live project; attribution, reference commit, license and the five upstream pip paths are in `references/hanab-live/`. This print adaptation uses white for the fifth suit; the standard sets share the base deck composition.
 - **Original SVG**: the first vector fireworks set, preserved unchanged in `dist/assets/cards/`, with its original black-and-white variant.
 
-All copies of a given colour/value use the same illustration. Each set has one common back for all 50 cards. No rank or suit is encoded on the back.
+All copies of a given colour/value use the same illustration. Each set has one common back for every card in the selected deck. No rank or suit is encoded on the back.
 
 ## Local use
 
@@ -57,11 +57,11 @@ The default **Painted diagonal** variant uses the same 25 paintings, with two re
 
 ## MakePlayingCards export
 
-**Download MPC ZIP** creates a complete deck locally in the browser using the selected artwork and colour mode. The archive contains 50 numbered front PNGs in playing quantities, one common back PNG, `deck.csv`, `manifest.json`, upload instructions, and license/credits. Each duplicate front is intentionally repeated as its own numbered file. This export always produces the full deck, independently of gallery filters, paper size, single-sided printing or home-printer calibration.
+**Download MPC ZIP** creates a complete deck locally in the browser using the selected artwork and colour mode. The archive contains 50 numbered front PNGs (45 for Minh) in playing quantities, one common back PNG, `deck.csv`, `manifest.json`, upload instructions, and license/credits. Each duplicate front is intentionally repeated as its own numbered file. This export always produces the full deck, independently of gallery filters, paper size, single-sided printing or home-printer calibration.
 
 The export targets MPC's **Custom Game Cards (63 × 88 mm)**, not Traditional Poker (63.5 × 88.9 mm). The official 63 × 88 mm template specifies **816 × 1110 px at 300 dpi**, with a centred **744 × 1038 px** card and **36 px bleed on every side**. Our conservative safe inset is 72 px from the outer image edge. PNGs are opaque RGB with a 300 dpi pHYs chunk; monochrome exports have equal RGB channels. The existing card is rasterized at trim size, and its edge pixels are extended into the bleed. There are no cut marks or template guides in the exported PNGs.
 
-Unzip before uploading: the MPC designer receives the PNGs rather than the ZIP itself. Choose a capacity of at least 50 cards (the inspected product offers an “Up to 55” option), place the 50 numbered fronts in order, and use the shared back for every card. If the builder deduplicates images, use the CSV to place the required copies. If extra positions must be filled, use the shared-back image as their fronts and remove those spare cards before play. Review the supplier's final preview before ordering. The app does not upload files, create orders, or make purchases.
+Unzip before uploading: the MPC designer receives the PNGs rather than the ZIP itself. Choose a capacity of at least 50 cards (the inspected product offers an “Up to 55” option), place the numbered fronts in order (45 for Minh), and use the shared back for every card. If the builder deduplicates images, use the CSV to place the required copies. If extra positions must be filled, use the shared-back image as their fronts and remove those spare cards before play. Review the supplier's final preview before ordering. The app does not upload files, create orders, or make purchases.
 
 Verified 2026-10-22 against the official template and product page:
 - https://www.makeplayingcards.com/dl/templates/playingcard/American-poker-size.pdf
@@ -69,3 +69,7 @@ Verified 2026-10-22 against the official template and product page:
 - https://www.makeplayingcards.com/design/custom-blank-card.html
 
 `dist/mpc.js` defines the export geometry and rasterizer. `dist/archive.js` supplies a small dependency-free ZIP writer and PNG density writer. Tests read the real downloaded archives with Python's standard ZIP reader, verify all PNG dimensions/CRCs/density, check the full deck distribution, and inspect opacity and monochrome pixels.
+
+## Minh deck
+
+Select **Minh · Hanab Live multicolour**, or open `?deck=minh`. This keeps the counted-pip Hanab Live layout, replaces the white/grey suit with rainbow diamonds and black numerals, and includes one multicolour card of each rank 1–5. Red, yellow, green and blue retain standard quantities: 40 standard cards plus 5 unique multicolour cards = 45 total. Printing, gallery counts and MPC exports use this distribution; all previous decks remain available. The MPC ZIP has 45 numbered fronts and one common back.

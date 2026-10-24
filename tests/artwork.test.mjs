@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { cards } from '../dist/deck.js';
+import { cards, minhCards } from '../dist/deck.js';
 const root=new URL('../dist/assets/',import.meta.url);
 test('every artwork set has all 25 faces, common backs, and monochrome variants',()=>{
  for(const directory of ['cards','live','painted','diagonal'])for(const id of [...cards.map(c=>c.id),'back'])for(const suffix of ['','-mono']){
@@ -27,5 +27,13 @@ test('diagonal cards retain each painting and add two black rank fields and suit
   assert.match(svg,/fill="#080d12"/);assert.match(svg,/translate\(630 880\) rotate\(180\)/);
   const embedded=svg.match(/data:image\/jpeg;base64,([^" ]+)/)[1];
   assert.deepEqual(Buffer.from(embedded,'base64'),readFileSync(new URL(`painted/${card.id}.jpg`,root)));
+ }
+});
+
+test('Minh artwork has rainbow pips, high contrast numbers, and monochrome counterparts',()=>{
+ for(const card of minhCards)for(const suffix of ['','-mono'])assert.ok(existsSync(new URL(`minh/${card.id}${suffix}.svg`,root)));
+ for(let rank=1;rank<=5;rank++){
+  const svg=readFileSync(new URL(`minh/multicolour-${rank}.svg`,root),'utf8');
+  assert.match(svg,/linearGradient id="rainbow"/);assert.match(svg,/fill="url\(#rainbow\)"/);assert.match(svg,/fill="#111" stroke="#111"/);
  }
 });

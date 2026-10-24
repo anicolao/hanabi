@@ -1,15 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import { suits, cards, papers, makeSheets, artworkPath } from './deck.js';
+import { cardsForSet, papers, makeSheets, artworkPath } from './deck.js';
 const $ = selector => document.querySelector(selector);
 let activeSuit = 'all', activeRank = 'all', pageIndex = 0, pages = [];
 const path = (id, mono = false) => artworkPath(id, $('#art-set').value, mono);
-const visibleCards = () => cards.filter(card => (activeSuit === 'all' || card.suit.id === activeSuit) && (activeRank === 'all' || card.rank === Number(activeRank)));
-for (const suit of suits) {
+const selectedCards = () => cardsForSet($('#art-set').value);
+if(new URLSearchParams(location.search).get('deck')==='minh') $('#art-set').value='minh';
+const visibleCards = () => selectedCards().filter(card => (activeSuit === 'all' || card.suit.id === activeSuit) && (activeRank === 'all' || card.rank === Number(activeRank)));
+function suitFilters() {
+ $('.suit-filters').querySelectorAll('[data-suit]:not([data-suit=all])').forEach(el=>el.remove());
+for (const suit of [...new Map(selectedCards().map(c=>[c.suit.id,c.suit])).values()]) {
   const button = document.createElement('button');
   button.className = 'chip'; button.dataset.suit = suit.id; button.setAttribute('aria-pressed', 'false');
-  button.innerHTML = `<span class="suit-dot" style="--suit-color:${suit.color}" aria-hidden="true"></span>${suit.name}`;
+  button.innerHTML = `<span class="suit-dot" style="--suit-color:${suit.id==='multicolour'?'linear-gradient(135deg,#ff3535,#ffdf00,#02ca00,#1683ff,#ae46df)':suit.color}" aria-hidden="true"></span>${suit.name}`;
   $('.suit-filters').append(button);
 }
+}
+suitFilters();
 function gallery() {
   const visible = visibleCards();
   const copies = visible.reduce((sum, c) => sum + c.copies, 0);
@@ -80,7 +86,7 @@ function renderPage(page, opt) {
 function updatePrint() {
   const opt = options(), tokens = opt.quantity === 'tokens';
   $('#side').disabled = tokens;
-  const selection = opt.quantity === 'filtered' ? visibleCards() : opt.quantity === 'test' ? cards.slice(0,4) : cards;
+  const selection = opt.quantity === 'filtered' ? visibleCards() : opt.quantity === 'test' ? selectedCards().slice(0,4) : selectedCards();
   pages = tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
   const count = opt.quantity === 'catalog' ? selection.length : selection.reduce((sum,c)=>sum+c.copies,0);
   $('#print-total').textContent = tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
@@ -101,7 +107,17 @@ function preview() {
   $('#preview-description').textContent = pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
   $('#previous').disabled = pageIndex === 0; $('#next').disabled = pageIndex === pages.length-1;
 }
-$('#art-set').addEventListener('change', () => { gallery(); updatePrint(); });
+function deckLabels() {
+ const deck=selectedCards(),count=deck.reduce((sum,c)=>sum+c.copies,0);
+ $('#quantity option[value=deck]').textContent=`Full deck · ${count} cards`;
+ $('.mpc-note').textContent=`Full ${count}-card deck + shared back. Uses the selected artwork and colour mode.`;
+ $('.gallery-note').textContent=$('#art-set').value==='minh'?'Multicolour: one copy each of 1–5. Other colours: 1 × 3, 2 × 2, 3 × 2, 4 × 2, 5 × 1.':'To print a subset, choose “Filtered cards” above. Copies per colour: 1 × 3, 2 × 2, 3 × 2, 4 × 2, 5 × 1.';
+}
+$('#art-set').addEventListener('change', () => {
+ activeSuit='all';suitFilters();
+ for(const chip of document.querySelectorAll('.chip')){const active=chip.dataset.suit==='all';chip.classList.toggle('active',active);chip.setAttribute('aria-pressed',String(active));}
+ $('#mpc-status').textContent='';deckLabels();gallery();updatePrint();
+});
 $('#ink').addEventListener('change', () => { gallery(); updatePrint(); });
 for (const selector of ['#paper','#quantity','#side','#offset-x','#offset-y']) $(selector).addEventListener('change',updatePrint);
 $('#previous').onclick = () => { if(pageIndex>0) {pageIndex--;preview();} };
@@ -126,8 +142,8 @@ $('#mpc-export').onclick = async () => {
     const { blob,filename }=await exportMpcZip({set,mono,onProgress:message=>$('#mpc-status').textContent=message});
     const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
     setTimeout(()=>URL.revokeObjectURL(url),60000);
-    $('#mpc-status').textContent='ZIP ready: 50 fronts, one shared back, and upload instructions.';
+    $('#mpc-status').textContent=`ZIP ready: ${cardsForSet(set).reduce((sum,c)=>sum+c.copies,0)} fronts, one shared back, and upload instructions.`;
   } catch(error) { $('#mpc-status').textContent='';$('#mpc-error').textContent='Could not prepare the MPC ZIP. Check your connection and try again.'; }
   finally {button.disabled=false;}
 };
-gallery();updatePrint();
+deckLabels();gallery();updatePrint();

@@ -5,11 +5,12 @@ const inspectZip=String.raw`import sys,zipfile,json,struct,zlib,hashlib,collecti
 with zipfile.ZipFile(sys.argv[1]) as z:
  assert z.testzip() is None
  m=json.loads(z.read('manifest.json'))
- assert m['cardCount']==50 and len(m['cards'])==50
+ expected=45 if m['artwork']=='minh' else 50
+ assert m['cardCount']==expected and len(m['cards'])==expected
  fronts=[n for n in z.namelist() if n.startswith('fronts/') and n.endswith('.png')]
  backs=[n for n in z.namelist() if n.startswith('back/') and n.endswith('.png')]
- assert len(fronts)==50 and backs==['back/shared-back.png']
- assert len(z.read('deck.csv').decode().splitlines())==51
+ assert len(fronts)==expected and backs==['back/shared-back.png']
+ assert len(z.read('deck.csv').decode().splitlines())==expected+1
  assert '63 x 88 mm' in z.read('README.txt').decode()
  assert 'Unzip' in z.read('README.txt').decode()
  assert 'LICENSE.txt' in z.namelist() and 'NOTICE.txt' in z.namelist()
@@ -27,15 +28,15 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   assert density==[(11811,11811,1)]
   hashes[n]=hashlib.sha256(data).hexdigest()
  assert len({hashes[n] for n in fronts})==25
- for suit in ['red','yellow','green','blue','white']:
+ for suit in ['red','yellow','green','blue']+(['multicolour'] if m['artwork']=='minh' else ['white']):
   rows=[c for c in m['cards'] if c['suit']==suit]
-  assert [c['rank'] for c in rows]==[1,1,1,2,2,3,3,4,4,5]
+  assert [c['rank'] for c in rows]==([1,2,3,4,5] if suit=='multicolour' else [1,1,1,2,2,3,3,4,4,5])
   for rank in range(1,6):assert len({hashes[c['file']] for c in rows if c['rank']==rank})==1
  first=m['cards'][0]['file'];open(sys.argv[2],'wb').write(z.read(first))
  print(json.dumps({'artwork':m['artwork'],'colourMode':m['colourMode'],'fronts':len(fronts),'bytes':sum(i.file_size for i in z.infolist())}))
 `;
-for(const set of ['diagonal','painted','live','svg']){
- test(`${set}: MPC button downloads 50 correct 300 dpi PNG fronts and a shared back`,async({page},info)=>{
+for(const set of ['diagonal','painted','live','svg','minh']){
+ test(`${set}: MPC button downloads the correct 300 dpi PNG fronts and a shared back`,async({page},info)=>{
   test.skip(info.project.name==='phone'&&set!=='svg','Full raster ZIP checks run on desktop; phone checks the vector export.');
   test.setTimeout(90000);
   await page.goto('/');await page.getByLabel('Card artwork').selectOption(set);
@@ -49,8 +50,8 @@ for(const set of ['diagonal','painted','live','svg']){
   expect(download.suggestedFilename()).toBe(`hanabi-mpc-${set}${set==='live'?'-mono':''}.zip`);
   const first=info.outputPath('first-front.png');
   const result=JSON.parse(execFileSync('python3',['-c',inspectZip,await download.path(),first],{encoding:'utf8'}));
-  expect(result.artwork).toBe(set);expect(result.fronts).toBe(50);expect(result.colourMode).toBe(set==='live'?'black-and-white':'colour');
-  await expect(page.locator('#mpc-status')).toContainText('50 fronts, one shared back');
+  expect(result.artwork).toBe(set);expect(result.fronts).toBe(set==='minh'?45:50);expect(result.colourMode).toBe(set==='live'?'black-and-white':'colour');
+  await expect(page.locator('#mpc-status')).toContainText(`${set==='minh'?45:50} fronts, one shared back`);
   const pixels=await page.evaluate(async({data,mono})=>{
    const image=new Image();image.src='data:image/png;base64,'+data;await image.decode();const canvas=document.createElement('canvas');canvas.width=816;canvas.height=1110;const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);const field=[...ctx.getImageData(110,100,1,1).data];const sample=ctx.getImageData(0,0,816,1110).data;let opaque=true,gray=true;for(let i=0;i<sample.length;i+=4){if(sample[i+3]!==255)opaque=false;if(sample[i]!==sample[i+1]||sample[i+1]!==sample[i+2])gray=false;}return {field,opaque,gray};
   },{data:readFileSync(first).toString('base64'),mono:set==='live'});

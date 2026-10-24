@@ -35,3 +35,10 @@ test('PNG physical resolution is replaced by one valid 300 dpi chunk',()=>{
  for(let at=8;at<twice.length;){const view=new DataView(twice.buffer),len=view.getUint32(at),name=String.fromCharCode(...twice.subarray(at+4,at+8));if(name==='pHYs'){found++;assert.equal(view.getUint32(at+8),11811);assert.equal(view.getUint32(at+12),11811);assert.equal(twice[at+16],1);assert.equal(view.getUint32(at+17),crc32(twice.subarray(at+4,at+17)));}at+=len+12;}
  assert.equal(found,1);
 });
+
+test('Minh MPC distribution replaces grey with five unique multicolour cards',()=>{
+ const deck=mpcDeck('minh');assert.equal(deck.length,45);
+ assert.deepEqual(deck.filter(c=>c.card.suit.id==='multicolour').map(c=>c.card.rank),[1,2,3,4,5]);
+ assert.equal(deck.filter(c=>c.card.suit.id==='white').length,0);
+ for(const suit of ['red','yellow','green','blue'])assert.deepEqual(deck.filter(c=>c.card.suit.id===suit).map(c=>c.card.rank),[1,1,1,2,2,3,3,4,4,5]);
+});

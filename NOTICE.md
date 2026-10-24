@@ -24,3 +24,5 @@ Hanab Live style: the five pip path functions in references/hanab-live/pips.js a
 ## Diagonal frame and MPC export
 
 The diagonal variant reuses the project's generated paintings without modification, with new vector number fields, suit icons and frame details by this project's contributors (GPL-3.0-only). The previous painted layout is retained. MakePlayingCards is an external printing service; no affiliation or endorsement is implied. Export geometry references its public 63 × 88 mm template at https://www.makeplayingcards.com/dl/templates/playingcard/American-poker-size.pdf (inspected 2026-10-22). No supplier template artwork, guides or logos are included in production PNGs. The app's PNG and ZIP export code is GPL-3.0-only.
+
+Minh variant: the white/grey pip is adapted to rainbow colours with high-contrast black numerals. Its multicolour suit has one card each of ranks 1–5; the other four suits retain base quantities.
