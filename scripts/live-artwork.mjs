@@ -23,7 +23,7 @@ paths.multicolour=paths.white;
 paths.black='M0 -60L52 -30L52 30L0 60L-52 30L-52 -30Z';
 colors.black='#111111';
 colors.multicolour='url(#rainbow)';
-const rainbow='<defs><linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3535"/><stop offset=".25" stop-color="#ffdf00"/><stop offset=".5" stop-color="#02ca00"/><stop offset=".75" stop-color="#1683ff"/><stop offset="1" stop-color="#ae46df"/></linearGradient></defs>';
+const rainbow='<defs><linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3535"/><stop offset=".25" stop-color="#ffdf00"/><stop offset=".5" stop-color="#02ca00"/><stop offset=".75" stop-color="#1683ff"/><stop offset="1" stop-color="#ae46df"/></linearGradient><linearGradient id="rainbow-number" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0" stop-color="#ff2424"/><stop offset=".25" stop-color="#ffd500"/><stop offset=".5" stop-color="#00c83c"/><stop offset=".75" stop-color="#087bff"/><stop offset="1" stop-color="#a52fe3"/></linearGradient></defs>';
 function pip(suit,x,y,scale,flip=false,mono=false){return `<g transform="translate(${x} ${y}) rotate(${flip?180:0}) scale(${scale})"><path d="${paths[suit]}" fill="${mono?'#fff':colors[suit]}" stroke="#111" stroke-width="3" stroke-linejoin="round"/></g>`;}
 for(const [set,selection] of [['live',cards],['minh',minhCards]]) {
 const out=new URL(`../dist/assets/${set}/`,import.meta.url);mkdirSync(out,{recursive:true});
@@ -39,7 +39,8 @@ for(const card of selection)for(const mono of [false,true]){
   : `<rect width="286" height="406" fill="#151515"/><rect x="4" y="4" width="278" height="398" rx="24" fill="white"/><rect x="4" y="4" width="278" height="398" rx="24" fill="${color}" fill-opacity="${mono?0:.22}" stroke="${color}" stroke-opacity=".7" stroke-width="4"/>`;
  const label=set==='minh'?'':`<text x="143" y="389" font-family="Arial,sans-serif" font-size="9" text-anchor="middle" fill="#111">${suit.name.toUpperCase()}</text>`;
  const cornerIcon=set==='minh'?`<g class="corner-suit-icon">${pip(suit.id,54,123,.32,false,mono)}</g>`:'';
- const numeral=`<text x="${set==='minh'?26:19}" y="${set==='minh'?92:110}" font-family="Arial,Helvetica,sans-serif" font-size="${set==='minh'?102.4:128}" font-weight="700" fill="${color}" stroke="#111" stroke-width="2.4" paint-order="stroke fill">${rank}</text>`;
+ const numeralExtra=suit.id==='multicolour'?' fill-opacity="1" stroke-linejoin="round"':'';
+ const numeral=`<text x="${set==='minh'?26:19}" y="${set==='minh'?92:110}" font-family="Arial,Helvetica,sans-serif" font-size="${set==='minh'?102.4:128}" font-weight="700" fill="${suit.id==='multicolour'&&!mono?'url(#rainbow-number)':color}"${numeralExtra} stroke="${suit.id==='multicolour'?'#000':'#111'}" stroke-width="${suit.id==='multicolour'?7.2:2.4}" paint-order="stroke fill">${rank}</text>`;
  writeFileSync(new URL(`${card.id}${mono?'-mono':''}.svg`,out),`<svg xmlns="http://www.w3.org/2000/svg" width="63mm" height="88mm" viewBox="0 0 286 406" preserveAspectRatio="none" role="img" aria-labelledby="title"><title id="title">${suit.name} ${rank} · Hanab Live style</title>${suit.id==='multicolour'?rainbow:''}${face}${numeral}${cornerIcon}<g transform="translate(286 406) rotate(180)">${numeral}${cornerIcon}</g>${pips}${label}</svg>`);
 }
 for(const mono of [false,true]){

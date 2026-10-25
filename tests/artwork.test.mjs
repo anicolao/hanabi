@@ -34,7 +34,7 @@ test('Minh artwork has rainbow pips, rainbow numbers, and monochrome counterpart
  for(const card of minhCards)for(const suffix of ['','-mono'])assert.ok(existsSync(new URL(`minh/${card.id}${suffix}.svg`,root)));
  for(let rank=1;rank<=5;rank++){
   const svg=readFileSync(new URL(`minh/multicolour-${rank}.svg`,root),'utf8');
-  assert.match(svg,/linearGradient id="rainbow"/);assert.match(svg,/fill="url\(#rainbow\)"/);assert.match(svg,/<text[^>]*fill="url\(#rainbow\)"/);
+  assert.match(svg,/linearGradient id="rainbow"/);assert.match(svg,/fill="url\(#rainbow\)"/);assert.match(svg,/<text[^>]*fill="url\(#rainbow-number\)"/);
  }
 });
 
