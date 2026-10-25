@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import { cardsForSet, papers, makeSheets, artworkPath } from './deck.js';
+import { colourCalibration } from './calibration.js';
 const $ = selector => document.querySelector(selector);
 let activeSuit = 'all', activeRank = 'all', pageIndex = 0, pages = [];
 const path = (id, mono = false) => artworkPath(id, $('#art-set').value, mono);
@@ -58,9 +59,11 @@ function marks(page, paper, opt) {
   const line = (x1,y1,x2,y2) => { lines += `<path d="M${x1} ${y1}L${x2} ${y2}"/>`; };
   for (let col=0; col<=3; col++) { const xx=x+col*63; line(xx,y-3.5,xx,y-1.5); line(xx,y+265.5,xx,y+267.5); }
   for (let row=0; row<=3; row++) { const yy=y+row*88; line(x-3.5,yy,x-1.5,yy); line(x+190.5,yy,x+192.5,yy); }
-  // Small white diamonds provide front/back alignment targets at every grid intersection.
+  // Two-millimetre white diamonds mark occupied card corners, matching the Pantheon sample.
   let diamonds = '';
-  if($('#art-set').value!=='minh') for (let col=0;col<=3;col++) for (let row=0;row<=3;row++) diamonds += `<path d="m${x+col*63} ${y+row*88-0.65} .65 .65 -.65 .65 -.65 -.65Z" fill="white" stroke="#333" stroke-width=".1"/>`;
+  const corners=new Map();
+  for(const item of page.items)for(const [cx,cy] of [[item.x,item.y],[item.x+63,item.y],[item.x,item.y+88],[item.x+63,item.y+88]])corners.set(`${cx},${cy}`,[cx,cy]);
+  for(const [cx,cy] of corners.values())diamonds+=`<path class="registration-diamond" d="M ${cx} ${cy-1} l 1 1 l -1 1 l -1 -1 Z" fill="white"/>`;
   return `<svg class="crop-marks" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="black" stroke-width=".15">${lines}</g>${diamonds}</svg>`;
 }
 function tokenPage(opt) {
@@ -69,6 +72,7 @@ function tokenPage(opt) {
   return el;
 }
 function renderPage(page, opt) {
+  if (page.side === 'calibration') return colourCalibration($('#art-set').value);
   if (page.side === 'tokens') return tokenPage(opt);
   const el = document.createElement('section'); el.className = 'print-page'; el.dataset.side = page.side; el.dataset.sheet = page.sheet;
   for (const item of page.items) {
@@ -84,12 +88,15 @@ function renderPage(page, opt) {
   return el;
 }
 function updatePrint() {
+  const calibration=$('#quantity').value==='calibration';
+  if(calibration)$('#ink').value='colour';
   const opt = options(), tokens = opt.quantity === 'tokens';
-  $('#side').disabled = tokens;
+  $('#side').disabled = tokens || calibration;
+  $('#ink').disabled = calibration;
   const selection = opt.quantity === 'filtered' ? visibleCards() : opt.quantity === 'test' ? selectedCards().slice(0,4) : selectedCards();
-  pages = tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
+  pages = calibration ? [{side:'calibration'}] : tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
   const count = opt.quantity === 'catalog' ? selection.length : selection.reduce((sum,c)=>sum+c.copies,0);
-  $('#print-total').textContent = tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
+  $('#print-total').textContent = calibration ? 'Colour calibration · 1 sheet · 1 PDF page' : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
   $('#print-pages').dataset.paper = opt.paper;
   document.documentElement.style.setProperty('--page-width',`${papers[opt.paper].width}mm`);
   document.documentElement.style.setProperty('--page-height',`${papers[opt.paper].height}mm`);
@@ -104,7 +111,7 @@ function preview() {
   el.style.transform = `scale(${scale})`;
   $('#preview-holder').style.width = `${papers[opt.paper].width*96/25.4*scale}px`;
   $('#page-indicator').textContent = `Page ${pageIndex+1} of ${pages.length}`;
-  $('#preview-description').textContent = pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
+  $('#preview-description').textContent = pages[pageIndex].side === 'calibration' ? 'COLOUR CALIBRATION · SINGLE SIDE' : pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
   $('#previous').disabled = pageIndex === 0; $('#next').disabled = pageIndex === pages.length-1;
 }
 function deckLabels() {
