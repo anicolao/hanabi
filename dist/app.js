@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import { cardsForSet, papers, makeSheets, artworkPath } from './deck.js';
-import { colourCalibration } from './calibration.js';
+import { calibrationSamples } from './calibration.js';
+import {printFilters,imageLift,clampLift} from './lamination.js';
 const $ = selector => document.querySelector(selector);
 let activeSuit = 'all', activeRank = 'all', pageIndex = 0, pages = [];
 const path = (id, mono = false) => artworkPath(id, $('#art-set').value, mono);
 const selectedCards = () => cardsForSet($('#art-set').value);
 if(new URLSearchParams(location.search).get('deck')==='minh') $('#art-set').value='minh';
+const chosenLift=()=>$('#ink').value==='colour'&&$('#colour-profile').value==='lamination'?clampLift($('#lamination-strength').value):0;
+function sampleOptions(){
+ const suits=[...new Map(selectedCards().map(c=>[c.suit.id,c.suit])).values()];
+ $('#calibration-sample').replaceChildren(...[...suits.map(s=>({id:`${s.id}-5`,name:`${s.name} 5`})),{id:'back',name:'Shared back'}].map(s=>new Option(s.name,s.id)));
+ $('#calibration-sample').value=suits.some(s=>s.id==='multicolour')?'multicolour-5':`${suits[0].id}-5`;
+}
+sampleOptions();
 const visibleCards = () => selectedCards().filter(card => (activeSuit === 'all' || card.suit.id === activeSuit) && (activeRank === 'all' || card.rank === Number(activeRank)));
 function suitFilters() {
  $('.suit-filters').querySelectorAll('[data-suit]:not([data-suit=all])').forEach(el=>el.remove());
@@ -50,7 +58,7 @@ $('#close-dialog').onclick = () => $('#card-dialog').close();
 $('#card-dialog').onclick = event => { if (event.target === $('#card-dialog')) { const r = event.target.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) event.target.close(); } };
 function options() {
   const clamp = value => Math.max(-5, Math.min(5, Number(value) || 0));
-  return { paper: $('#paper').value, quantity: $('#quantity').value, side: $('#side').value, x: clamp($('#offset-x').value), y: clamp($('#offset-y').value), mono: $('#ink').value === 'mono' };
+  return { lift:chosenLift(), paper: $('#paper').value, quantity: $('#quantity').value, side: $('#side').value, x: clamp($('#offset-x').value), y: clamp($('#offset-y').value), mono: $('#ink').value === 'mono' };
 }
 function marks(page, paper, opt) {
   const { width, height } = papers[paper];
@@ -71,20 +79,23 @@ function tokenPage(opt) {
   el.innerHTML = `<h2>Hanabi tokens</h2><p>8 clue markers + 3 fuse markers · 22 mm diameter<br>Print one-sided at 100% scale. Cut around the dotted circles.</p><h3>Clues</h3><div class="token-row">${Array.from({length:8},()=>'<div class="token"><span>✦</span><small>CLUE</small></div>').join('')}</div><h3>Fuses</h3><div class="token-row">${Array.from({length:3},()=>'<div class="token fuse"><span>✳</span><small>FUSE</small></div>').join('')}</div><div class="page-label">HANABI · TOKEN SHEET · SINGLE-SIDED · ACTUAL SIZE</div>`;
   return el;
 }
-function renderPage(page, opt) {
-  if (page.side === 'calibration') return colourCalibration($('#art-set').value);
+function renderPage(page, opt, isPreview=false) {
   if (page.side === 'tokens') return tokenPage(opt);
   const el = document.createElement('section'); el.className = 'print-page'; el.dataset.side = page.side; el.dataset.sheet = page.sheet;
+  const calibration=page.side==='calibration';
+  if(calibration)el.classList.add('lamination-page');
   for (const item of page.items) {
     const bleed = document.createElement('div'); bleed.className = 'bleed';
     bleed.style.cssText = `left:${item.x-1}mm;top:${item.y-1}mm;width:65mm;height:90mm;background:${$('#art-set').value==='minh'?'#000':opt.mono?'#fffdf7':'#142a36'}`;
     const card = document.createElement('div'); card.className = 'printed-card'; card.dataset.card = item.card.id;
     card.style.cssText = `left:${item.x}mm;top:${item.y}mm`;
-    const img = document.createElement('img'); img.src = path(page.side === 'back' ? 'back' : item.card.id, opt.mono); img.alt = '';
-    card.append(img); el.append(bleed,card);
+    const img = document.createElement('img'); img.src = path(page.side === 'back' ? 'back' : item.card.id, opt.mono); img.alt = '';img.style.filter=imageLift(item.lift??opt.lift,isPreview?'preview-lamination-':'lamination-');
+    card.append(img);
+    if(calibration){const label=document.createElement('div');label.className='sample-label';label.textContent=item.label;card.append(label);card.dataset.lift=item.lift;}
+    el.append(bleed,card);
   }
   el.insertAdjacentHTML('beforeend', marks(page,opt.paper,opt));
-  el.insertAdjacentHTML('beforeend', `<div class="page-label">HANABI · SHEET ${page.sheet} · ${page.side.toUpperCase()}S · 100% SCALE · LONG-EDGE DUPLEX</div>`);
+  el.insertAdjacentHTML('beforeend', `<div class="page-label">HANABI · ${calibration?'LAMINATION CALIBRATION · MIDTONE LIFT 0–50% · SINGLE-SIDED':`SHEET ${page.sheet} · ${page.side.toUpperCase()}S · ${opt.lift?`MIDTONE LIFT ${opt.lift}% · `:''}LONG-EDGE DUPLEX`} · 100% SCALE</div>`);
   return el;
 }
 function updatePrint() {
@@ -92,42 +103,56 @@ function updatePrint() {
   if(calibration)$('#ink').value='colour';
   const opt = options(), tokens = opt.quantity === 'tokens';
   $('#side').disabled = tokens || calibration;
+  $('#side-control').hidden=calibration;
+  $('.alignment').hidden=calibration;
+  $('.print-note').innerHTML=calibration?'Print one-sided at 100% size. Laminate the whole sheet, compare the labelled samples, then apply the chosen lift to the deck.':tokens?'Print one-sided at 100% size.':'63 × 88 mm cards. Print at 100% size.<br>For duplex: flip on the long edge.';
   $('#ink').disabled = calibration;
+  $('#sample-control').hidden=!calibration;
+  $('#profile-control').hidden=calibration||opt.mono;
+  $('#lift-control').hidden=calibration||opt.mono||$('#colour-profile').value!=='lamination';
+  $('#lamination-help').hidden=opt.mono||(!calibration&&$('#colour-profile').value!=='lamination');
+  $('#lift-value').textContent=`${$('#lamination-strength').value}%`;
   const selection = opt.quantity === 'filtered' ? visibleCards() : opt.quantity === 'test' ? selectedCards().slice(0,4) : selectedCards();
-  pages = calibration ? [{side:'calibration'}] : tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
+  const samples=calibrationSamples($('#art-set').value,$('#calibration-sample').value);
+  const calibrationPage=calibration?makeSheets(Array.from({length:9},()=>({id:$('#calibration-sample').value,copies:1})),{paper:opt.paper,side:'front',quantity:'catalog'})[0]:null;
+  if(calibrationPage){calibrationPage.side='calibration';calibrationPage.items=calibrationPage.items.map((item,i)=>({...item,...samples[i]}));}
+  pages = calibration ? [calibrationPage] : tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
   const count = opt.quantity === 'catalog' ? selection.length : selection.reduce((sum,c)=>sum+c.copies,0);
-  $('#print-total').textContent = calibration ? 'Colour calibration · 1 sheet · 1 PDF page' : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
+  $('#print-total').textContent = calibration ? 'Lamination calibration · 9 samples · 1 sheet · 1 PDF page' : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
   $('#print-pages').dataset.paper = opt.paper;
   document.documentElement.style.setProperty('--page-width',`${papers[opt.paper].width}mm`);
   document.documentElement.style.setProperty('--page-height',`${papers[opt.paper].height}mm`);
   $('#print-pages').replaceChildren(...pages.map(page => renderPage(page,opt)));
+  $('#print-pages .print-page').insertAdjacentHTML('afterbegin',printFilters(opt.lift));
   pageIndex = 0; preview();
 }
 function preview() {
   const opt=options();
-  const el=renderPage(pages[pageIndex],opt); el.classList.add('preview-page'); el.setAttribute('aria-hidden','true');
+  const el=renderPage(pages[pageIndex],opt,true);el.insertAdjacentHTML('afterbegin',printFilters(opt.lift,'preview-lamination-')); el.classList.add('preview-page'); el.setAttribute('aria-hidden','true');
   $('#preview-holder').replaceChildren(el);
   const scale = Math.min(590 / (papers[opt.paper].height * 96 / 25.4), ($('#preview-window').clientWidth-12) / (papers[opt.paper].width*96/25.4));
   el.style.transform = `scale(${scale})`;
   $('#preview-holder').style.width = `${papers[opt.paper].width*96/25.4*scale}px`;
   $('#page-indicator').textContent = `Page ${pageIndex+1} of ${pages.length}`;
-  $('#preview-description').textContent = pages[pageIndex].side === 'calibration' ? 'COLOUR CALIBRATION · SINGLE SIDE' : pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
+  $('#preview-description').textContent = pages[pageIndex].side === 'calibration' ? 'LAMINATION CALIBRATION · SINGLE SIDE' : pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
   $('#previous').disabled = pageIndex === 0; $('#next').disabled = pageIndex === pages.length-1;
 }
 function deckLabels() {
  const deck=selectedCards(),count=deck.reduce((sum,c)=>sum+c.copies,0);
  $('#quantity option[value=catalog]').textContent=`One of each · ${deck.length} cards`;
  $('#quantity option[value=deck]').textContent=`Full deck · ${count} cards`;
- $('.mpc-note').textContent=`Full ${count}-card deck + shared back. Uses the selected artwork and colour mode.`;
+ $('.mpc-note').textContent=`Full ${count}-card deck + shared back. Uses the selected artwork, colour mode and adjustment.`;
  $('.gallery-note').textContent=$('#art-set').value==='minh'?'Multicolour: one copy each of 1–5. Other colours: 1 × 3, 2 × 2, 3 × 2, 4 × 2, 5 × 1.':'To print a subset, choose “Filtered cards” above. Copies per colour: 1 × 3, 2 × 2, 3 × 2, 4 × 2, 5 × 1.';
 }
 $('#art-set').addEventListener('change', () => {
- activeSuit='all';suitFilters();
+ activeSuit='all';suitFilters();sampleOptions();
  for(const chip of document.querySelectorAll('.chip')){const active=chip.dataset.suit==='all';chip.classList.toggle('active',active);chip.setAttribute('aria-pressed',String(active));}
  $('#mpc-status').textContent='';deckLabels();gallery();updatePrint();
 });
 $('#ink').addEventListener('change', () => { gallery(); updatePrint(); });
 for (const selector of ['#paper','#quantity','#side','#offset-x','#offset-y']) $(selector).addEventListener('change',updatePrint);
+for(const id of ['#colour-profile','#calibration-sample'])$(id).addEventListener('change',updatePrint);
+$('#lamination-strength').addEventListener('input',updatePrint);
 $('#previous').onclick = () => { if(pageIndex>0) {pageIndex--;preview();} };
 $('#next').onclick = () => { if(pageIndex<pages.length-1) {pageIndex++;preview();} };
 new ResizeObserver(() => { if(pages.length) preview(); }).observe($('#preview-window'));
@@ -144,13 +169,13 @@ $('#print').onclick = async () => {
 };
 $('#mpc-export').onclick = async () => {
   const button=$('#mpc-export');button.disabled=true;$('#mpc-error').textContent='';
-  const set=$('#art-set').value,mono=$('#ink').value==='mono';
+  const set=$('#art-set').value,mono=$('#ink').value==='mono',lift=chosenLift();
   try {
     const { exportMpcZip }=await import('./mpc.js');
-    const { blob,filename }=await exportMpcZip({set,mono,onProgress:message=>$('#mpc-status').textContent=message});
+    const { blob,filename }=await exportMpcZip({set,mono,lift,onProgress:message=>$('#mpc-status').textContent=message});
     const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
     setTimeout(()=>URL.revokeObjectURL(url),60000);
-    $('#mpc-status').textContent=`ZIP ready: ${cardsForSet(set).reduce((sum,c)=>sum+c.copies,0)} fronts, one shared back, and upload instructions.`;
+    $('#mpc-status').textContent=`ZIP ready: ${cardsForSet(set).reduce((sum,c)=>sum+c.copies,0)} fronts, one shared back, and upload instructions.${lift?` ${lift}% midtone lift applied.`:''}`;
   } catch(error) { $('#mpc-status').textContent='';$('#mpc-error').textContent='Could not prepare the MPC ZIP. Check your connection and try again.'; }
   finally {button.disabled=false;}
 };

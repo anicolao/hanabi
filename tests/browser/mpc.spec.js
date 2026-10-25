@@ -73,3 +73,21 @@ test('MPC failures show a recoverable error and re-enable the button',async({pag
  await page.getByRole('button',{name:'Download MPC ZIP'}).click();
  await expect(page.locator('#mpc-error')).toContainText('Could not prepare');await expect(page.getByRole('button',{name:'Download MPC ZIP'})).toBeEnabled();
 });
+test('lamination MPC ZIP records the selected lift and rasterizes lifted midtones with black bleed',async({page},info)=>{
+ await page.goto('/?deck=minh');await page.getByLabel('Colour adjustment').selectOption('lamination');await page.getByRole('slider',{name:'Midtone lift',exact:true}).fill('50');
+ const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download MPC ZIP'}).click();const download=await pending;expect(download.suggestedFilename()).toBe('hanabi-mpc-minh-lift-50.zip');
+ const back=info.outputPath('lifted-back.png');
+ const result=JSON.parse(execFileSync('python3',['-c',`import zipfile,json,sys
+with zipfile.ZipFile(sys.argv[1]) as z:
+ assert z.testzip() is None
+ m=json.loads(z.read('manifest.json'))
+ assert len([n for n in z.namelist() if n.startswith('fronts/') and n.endswith('.png')])==55
+ assert '50% midtone lift' in z.read('README.txt').decode()
+ open(sys.argv[2],'wb').write(z.read('back/shared-back.png'))
+ print(json.dumps(m['colourAdjustment']))`,await download.path(),back],{encoding:'utf8'}));
+ expect(result).toEqual({profile:'gloss-lamination',midtoneLift:50});
+ const pixels=await page.evaluate(async data=>{
+  const img=new Image();img.src='data:image/png;base64,'+data;await img.decode();const canvas=document.createElement('canvas');canvas.width=816;canvas.height=1110;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);return {gray:[...ctx.getImageData(408,190,1,1).data],black:[...ctx.getImageData(10,190,1,1).data]};
+ },readFileSync(back).toString('base64'));
+ expect(pixels.gray[0]).toBeGreaterThan(170);expect(pixels.gray[0]).toBe(pixels.gray[1]);expect(pixels.gray[1]).toBe(pixels.gray[2]);expect(pixels.black).toEqual([0,0,0,255]);
+});
