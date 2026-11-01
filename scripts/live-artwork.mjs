@@ -46,9 +46,7 @@ for(const card of selection)for(const mono of [false,true]){
 for(const mono of [false,true]){
  const backSuits=set==='minh'?['red','yellow','green','blue','multicolour','black']:Object.keys(names);
  let pips='';for(let i=0;i<backSuits.length;i++){const angle=i*Math.PI*2/backSuits.length-Math.PI/2;pips+=pip(backSuits[i],143+70*Math.cos(angle),203+70*Math.sin(angle),.35,false,true);}
- const backFace=set==='minh'
-  ? `<rect width="286" height="406" fill="#000"/><rect x="14" y="14" width="258" height="378" rx="18" fill="${mono?'#fff':'#929292'}"/>`
-  : `<rect width="286" height="406" fill="${mono?'#fff':'#777'}"/><rect x="5" y="5" width="276" height="396" rx="24" fill="${mono?'#fff':'#929292'}" stroke="#222" stroke-width="5"/>`;
+ const backFace='<rect width="286" height="406" fill="#000"/>';
  writeFileSync(new URL(`back${mono?'-mono':''}.svg`,out),`<svg xmlns="http://www.w3.org/2000/svg" width="63mm" height="88mm" viewBox="0 0 286 406" preserveAspectRatio="none" role="img" aria-labelledby="title"><title id="title">Shared back · Hanab Live style</title>${backFace}${pips}</svg>`);
 }
 }

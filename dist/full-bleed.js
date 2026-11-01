@@ -8,8 +8,8 @@ export function fullBleedSvg(source,{set,id,mono=false}){
  const rects=[...root.children].filter(el=>el.localName==='rect');
  const expand=rect=>{for(const [key,value] of Object.entries({x:0,y:0,width,height}))rect.setAttribute(key,value);for(const key of ['rx','ry','stroke','stroke-width','stroke-opacity'])rect.removeAttribute(key);};
  if(set==='live'||set==='minh'){
-  rects[0].setAttribute('fill',id==='back'?'#929292':'white');
-  for(const rect of rects.slice(1)){expand(rect);if(id==='back')rect.setAttribute('fill','#929292');}
+  rects[0].setAttribute('fill',id==='back'?'#000':'white');
+  for(const rect of rects.slice(1)){expand(rect);if(id==='back')rect.setAttribute('fill','#000');}
  }else{
   // Perimeter strokes are decoration, not the rank badges or diagonal index fields.
   for(const rect of rects)if(rect.getAttribute('fill')==='none'&&rect.hasAttribute('stroke'))rect.remove();
@@ -26,7 +26,7 @@ export function fullBleedSvg(source,{set,id,mono=false}){
  return new XMLSerializer().serializeToString(root);
 }
 // Nine-slice edge extension keeps the trim artwork and index positions unchanged.
-export function bleedSvg(source,mm=1.5){
+export function bleedSvg(source,mm=1){
  const document=new DOMParser().parseFromString(source,'image/svg+xml'),root=document.documentElement;
  const [x,y,w,h]=root.getAttribute('viewBox').split(/\s+/).map(Number),bx=w*mm/63,by=h*mm/88;
  const defs=document.createElementNS(root.namespaceURI,'defs'),content=document.createElementNS(root.namespaceURI,'g');content.id='card-bleed-content';

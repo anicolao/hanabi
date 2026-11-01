@@ -69,26 +69,32 @@ function options() {
 }
 function marks(page, paper, opt) {
   const { width, height } = papers[paper];
-  const gridWidth=opt.fullBleed?195:189,gridHeight=opt.fullBleed?270:264;
+  const gap=opt.fullBleed?2:0,bleed=1,gridWidth=189+2*gap,gridHeight=264+2*gap;
   const x = (width-gridWidth)/2 + (page.side === 'back' ? opt.x : 0), y = (height-gridHeight)/2 + (page.side === 'back' ? opt.y : 0);
   let lines = '', guides='';
-  const guide=(axis,cut,offset,x1,y1,x2,y2)=>{guides+=`<path class="cutter-channel-mark" data-axis="${axis}" data-cut="${cut}" data-offset="${offset}" d="M${x1} ${y1}L${x2} ${y2}"/>`;};
-  const line = (x1,y1,x2,y2) => { lines += `<path d="M${x1} ${y1}L${x2} ${y2}"/>`; };
-  const cols=opt.fullBleed?[0,63,66,129,132,195]:[0,63,126,189],rows=opt.fullBleed?[0,88,91,179,182,270]:[0,88,176,264];
-  for(const col of cols){
-   const cut=x+col;line(cut,y-3.5,cut,y-1.5);line(cut,y+gridHeight+1.5,cut,y+gridHeight+3.5);
-   for(const offset of [-3.5,3.5]){guide('x',cut,offset,cut+offset,y-3.1,cut+offset,y-1.9);guide('x',cut,offset,cut+offset,y+gridHeight+1.9,cut+offset,y+gridHeight+3.1);}
+  const guide=(axis,cut,offset,x1,y1,x2,y2)=>{
+   // The outer half of a channel can fall in Letter's unprintable margin.
+   const position=cut+offset,limit=axis==='x'?width:height;if(position<3.2||position>limit-3.2)return;
+   guides+=`<path class="cutter-channel-mark" data-axis="${axis}" data-cut="${cut}" data-offset="${offset}" d="M${x1} ${y1}L${x2} ${y2}"/>`;
+  };
+  const line=(axis,cut,x1,y1,x2,y2)=>{lines+=`<path class="centre-crop-mark" data-axis="${axis}" data-cut="${cut}" d="M${x1} ${y1}L${x2} ${y2}"/>`;};
+  const cols=gap?[0,63,65,128,130,193]:[0,63,126,189],rows=gap?[0,88,90,178,180,268]:[0,88,176,264];
+  // Marks occupy 90% of the outer bleed or each internal gutter; never the trim.
+  const segments=(origin,span,card)=>[[origin-bleed*.95,origin-bleed*.05],...[0,1].flatMap(i=>gap?[[origin+card+i*(card+gap)+gap*.05,origin+card+i*(card+gap)+gap*.95]]:[]),[origin+span+bleed*.05,origin+span+bleed*.95]];
+  for(const col of cols)for(const [from,to] of segments(y,gridHeight,88)){
+   const cut=x+col;line('x',cut,cut,from,cut,to);
+   const inset=(to-from)/6;for(const offset of [-3.5,3.5])guide('x',cut,offset,cut+offset,from+inset,cut+offset,to-inset);
   }
-  for(const row of rows){
-   const cut=y+row;line(x-3.5,cut,x-1.5,cut);line(x+gridWidth+1.5,cut,x+gridWidth+3.5,cut);
-   for(const offset of [-3.5,3.5]){guide('y',cut,offset,x-3.1,cut+offset,x-1.9,cut+offset);guide('y',cut,offset,x+gridWidth+1.9,cut+offset,x+gridWidth+3.1,cut+offset);}
+  for(const row of rows)for(const [from,to] of segments(x,gridWidth,63)){
+   const cut=y+row;line('y',cut,from,cut,to,cut);
+   const inset=(to-from)/6;for(const offset of [-3.5,3.5])guide('y',cut,offset,from+inset,cut+offset,to-inset,cut+offset);
   }
   // Two-millimetre white diamonds mark occupied card corners, matching the Pantheon sample.
   let diamonds = '';
   const corners=new Map();
   for(const item of page.items)for(const [cx,cy] of [[item.x,item.y],[item.x+63,item.y],[item.x,item.y+88],[item.x+63,item.y+88]])corners.set(`${cx},${cy}`,[cx,cy]);
   for(const [cx,cy] of corners.values())diamonds+=`<path class="registration-diamond" d="M ${cx} ${cy-1} l 1 1 l -1 1 l -1 -1 Z" fill="white"/>`;
-  return `<svg class="crop-marks" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="black" stroke-width=".15">${lines}</g><g fill="none" stroke="#666" stroke-width=".12">${guides}</g>${diamonds}</svg>`;
+  return `<svg class="crop-marks" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${diamonds}<g class="mark-halo" fill="none" stroke="white" stroke-width=".45" stroke-linecap="butt">${(lines+guides).replace(/ class=\"[^\"]*\"/g,'')}</g><g fill="none" stroke="black" stroke-width=".15">${lines}</g><g fill="none" stroke="#666" stroke-width=".12">${guides}</g></svg>`;
 }
 function tokenPage(opt) {
   const el = document.createElement('section'); el.className = `print-page token-page${opt.mono ? ' mono' : ''}`;
@@ -102,7 +108,7 @@ function renderPage(page, opt, isPreview=false) {
   if(calibration)el.classList.add('lamination-page');
   for (const item of page.items) {
     const bleed = document.createElement('div'); bleed.className = 'bleed';
-    const bleedSize=opt.fullBleed?1.5:1;
+    const bleedSize=1;
     bleed.style.cssText = `left:${item.x-bleedSize}mm;top:${item.y-bleedSize}mm;width:${63+2*bleedSize}mm;height:${88+2*bleedSize}mm;background:${($('#art-set').value==='minh'||calibration&&page.side==='front'&&item.set==='minh')?'#000':opt.mono?'#fffdf7':'#142a36'}`;
     const card = document.createElement('div'); card.className = 'printed-card'; card.dataset.card = item.card.id;
     card.style.cssText = `left:${item.x}mm;top:${item.y}mm`;

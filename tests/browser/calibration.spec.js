@@ -39,15 +39,15 @@ test('lamination ramp prints nine controlled samples and applies the chosen lift
  await page.getByLabel('What to include').selectOption('deck');await page.getByLabel('Colour adjustment').selectOption('standard');await expect(page.locator('#print-pages img').first()).toHaveCSS('filter','none');
 });
 test('lamination ramp visibly lifts grey midtones and preserves black in the rendered print',async({page})=>{
- await page.goto('/?deck=minh');await page.getByLabel('What to include').selectOption('calibration');await page.getByLabel('Calibration sample').selectOption('back');
+ await page.goto('/?deck=minh');await page.getByLabel('What to include').selectOption('calibration');await page.getByLabel('Calibration sample').selectOption('black-5');
  await page.emulateMedia({media:'print'});await page.locator('#print-pages img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode())));
- const images=page.locator('#print-pages img');
+ const images=page.locator('#print-pages [data-side=front] img');
  const baseline=(await images.first().screenshot()).toString('base64'),lifted=(await images.last().screenshot()).toString('base64');
  const values=await page.evaluate(async data=>Promise.all(data.map(async png=>{
   const img=new Image();img.src='data:image/png;base64,'+png;await img.decode();const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
-  return {gray:[...ctx.getImageData(120,50,1,1).data],black:[...ctx.getImageData(2,50,1,1).data]};
+  return {gray:[...ctx.getImageData(180,130,1,1).data],black:[...ctx.getImageData(2,50,1,1).data]};
  })),[baseline,lifted]);
- expect(values[0].gray[0]).toBe(146);expect(values[1].gray[0]).toBeGreaterThan(170);for(const sample of values)expect(sample.black).toEqual([0,0,0,255]);
+ expect(values[0].gray[0]).toBe(203);expect(values[1].gray[0]).toBeGreaterThan(210);for(const sample of values)expect(sample.black).toEqual([0,0,0,255]);
 });
 
 test('combined calibration defaults to multicolour for every artwork and retains controls across all views',async({page})=>{
