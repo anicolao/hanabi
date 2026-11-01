@@ -15,14 +15,29 @@ export const blackSuit = { id: 'black', name: 'Black', motif: 'Hexagon', symbol:
 export const minhCards = [...cards.filter(card => card.suit.id !== 'white'), ...Array.from({length:5}, (_, i) => ({id:`multicolour-${i+1}`, suit:multicolourSuit, rank:i+1, copies:1})), ...Array.from({length:5}, (_, i) => ({id:`black-${i+1}`, suit:blackSuit, rank:i+1, copies:multiplicities[i+1]}))];
 export function cardsForSet(set = 'diagonal') { return set === 'minh' ? minhCards : cards; }
 export const papers = { a4: { width: 210, height: 297 }, letter: { width: 215.9, height: 279.4 } };
-export function makeSheets(selection = cards, { paper = 'a4', quantity = 'deck', side = 'both', x = 0, y = 0, fullBleed = false } = {}) {
+export function makeSheets(selection = cards, { paper = 'a4', quantity = 'deck', side = 'both', x = 0, y = 0, fullBleed = false, layout = 'compact', gap = fullBleed ? 2 : 0 } = {}) {
   const { width, height } = papers[paper];
-  const deck = selection.flatMap(card => Array.from({ length: quantity === 'deck' ? card.copies : 1 }, () => card));
-  const pages = [], capacity=9, gap=fullBleed?2:0, gridWidth=189+2*gap, gridHeight=264+2*gap;
-  for (let i = 0; i < deck.length; i += capacity) {
-    const front = deck.slice(i, i + capacity).map((card, j) => ({ card, x: (width - gridWidth) / 2 + (j % 3) * (63+gap), y: (height - gridHeight) / 2 + Math.floor(j / 3) * (88+gap) }));
-    if (side !== 'back') pages.push({ sheet: i / capacity + 1, side: 'front', items: front });
-    if (side !== 'front') pages.push({ sheet: i / capacity + 1, side: 'back', items: front.map(item => ({ ...item, x: width - item.x - 63 + x, y: item.y + y })) });
+  const deck = selection.flatMap(card => Array.from({ length: quantity === 'deck' ? card.copies : 1 }, () => ({card,extra:false})));
+  const sheets=[];
+  if(layout==='suits'){
+    const groups=new Map();
+    for(const item of deck.filter(item=>item.card.rank!==5)){
+      const suit=item.card.suit.id;if(!groups.has(suit))groups.set(suit,[]);groups.get(suit).push(item);
+    }
+    for(const items of groups.values()){
+      const spareDesigns=[...new Map(items.map(item=>[item.card.id,item.card])).values()];
+      for(let i=0;i<items.length;i+=9){const slots=items.slice(i,i+9);let spare=0;while(slots.length<9)slots.push({card:spareDesigns[spare++%spareDesigns.length],extra:true});sheets.push({slots,gap:0,kind:'suit',suitName:items[0].card.suit.name});}
+    }
+    const fives=deck.filter(item=>item.card.rank===5);
+    for(let i=0;i<fives.length;i+=9)sheets.push({slots:fives.slice(i,i+9),gap:2,kind:'fives',suitName:'All 5s'});
+  }else for(let i=0;i<deck.length;i+=9)sheets.push({slots:deck.slice(i,i+9),gap,kind:'calibration'});
+  const pages=[];
+  for(const [index,sheet] of sheets.entries()){
+    const gridWidth=189+2*sheet.gap,gridHeight=264+2*sheet.gap;
+    const front=sheet.slots.map((item,j)=>({...item,x:(width-gridWidth)/2+(j%3)*(63+sheet.gap),y:(height-gridHeight)/2+Math.floor(j/3)*(88+sheet.gap)}));
+    const metadata={sheet:index+1,gap:sheet.gap,kind:sheet.kind,suitName:sheet.suitName};
+    if(side!=='back')pages.push({...metadata,side:'front',items:front});
+    if(side!=='front')pages.push({...metadata,side:'back',items:front.map(item=>({...item,x:width-item.x-63+x,y:item.y+y}))});
   }
   return pages;
 }

@@ -16,11 +16,11 @@ test('full bleed removes front/back frames in every artwork and both colour mode
  });
  for(const result of results){expect(result.flag).toBe('full-bleed');expect(result.perimeter).toBe(0);expect(result.corner[3]).toBe(255);if(result.id==='back'&&['minh','live'].includes(result.set))expect(result.corner).toEqual([0,0,0,255]);}
 });
-test('full-bleed sheets have separate bleed gutters, mirrored backs, and preserve every calibration sample',async({page})=>{
+test('full-bleed suit sheets use shared cuts and retain guttered calibration',async({page})=>{
  await page.goto('/?deck=minh');await page.getByLabel('Card edges').selectOption('full-bleed');await ready(page);
- await expect(page.locator('#print-total')).toHaveText('55 cards · 7 sheets · 14 PDF pages');
+ await expect(page.locator('#print-total')).toHaveText('60 printed · 55 required + 5 spares · 7 sheets · 14 PDF pages');
  const positions=await page.locator('#print-pages .print-page').evaluateAll(pages=>[0,1].map(i=>[...pages[i].querySelectorAll('.printed-card')].map(el=>({x:parseFloat(el.style.left),y:parseFloat(el.style.top)}))));
- expect(positions[0]).toHaveLength(9);expect(positions[0][1].x-positions[0][0].x).toBe(65);expect(positions[0][3].y-positions[0][0].y).toBe(90);
+ expect(positions[0]).toHaveLength(9);expect(positions[0][1].x-positions[0][0].x).toBe(63);expect(positions[0][3].y-positions[0][0].y).toBe(88);
  for(let i=0;i<9;i++){expect(positions[0][i].x+positions[1][i].x+63).toBeCloseTo(210);expect(positions[0][i].y).toBe(positions[1][i].y);}
  await page.emulateMedia({media:'print'});const trim=await page.locator('#print-pages .printed-card').first().boundingBox(),bleed=await page.locator('#print-pages .bleed').first().boundingBox();expect(trim.width).toBeCloseTo(63*96/25.4,0);expect(trim.height).toBeCloseTo(88*96/25.4,0);expect(bleed.width).toBeCloseTo(65*96/25.4,0);expect(bleed.height).toBeCloseTo(90*96/25.4,0);
  await page.emulateMedia({media:'screen'});await page.getByLabel('What to include').selectOption('calibration');await ready(page);

@@ -69,7 +69,7 @@ function options() {
 }
 function marks(page, paper, opt) {
   const { width, height } = papers[paper];
-  const gap=opt.fullBleed?2:0,bleed=1,gridWidth=189+2*gap,gridHeight=264+2*gap;
+  const gap=page.gap||0,bleed=1,gridWidth=189+2*gap,gridHeight=264+2*gap;
   const x = (width-gridWidth)/2 + (page.side === 'back' ? opt.x : 0), y = (height-gridHeight)/2 + (page.side === 'back' ? opt.y : 0);
   let lines = '', guides='';
   const guide=(axis,cut,offset,x1,y1,x2,y2)=>{
@@ -79,13 +79,13 @@ function marks(page, paper, opt) {
   };
   const line=(axis,cut,x1,y1,x2,y2)=>{lines+=`<path class="centre-crop-mark" data-axis="${axis}" data-cut="${cut}" d="M${x1} ${y1}L${x2} ${y2}"/>`;};
   const cols=gap?[0,63,65,128,130,193]:[0,63,126,189],rows=gap?[0,88,90,178,180,268]:[0,88,176,264];
-  // Marks occupy 90% of the outer bleed or each internal gutter; never the trim.
-  const segments=(origin,span,card)=>[[origin-bleed*.95,origin-bleed*.05],...[0,1].flatMap(i=>gap?[[origin+card+i*(card+gap)+gap*.05,origin+card+i*(card+gap)+gap*.95]]:[]),[origin+span+bleed*.05,origin+span+bleed*.95]];
-  for(const col of cols)for(const [from,to] of segments(y,gridHeight,88)){
+  // Outer marks cross the bleed into the margin, leaving a 3.2 mm printable margin.
+  const segments=(origin,span,card,limit)=>[[origin-Math.max(.95,Math.min(3.5,origin-3.2)),origin-bleed*.05],...[0,1].flatMap(i=>gap?[[origin+card+i*(card+gap)+gap*.05,origin+card+i*(card+gap)+gap*.95]]:[]),[origin+span+bleed*.05,origin+span+Math.max(.95,Math.min(3.5,limit-origin-span-3.2))]];
+  for(const col of cols)for(const [from,to] of segments(y,gridHeight,88,height)){
    const cut=x+col;line('x',cut,cut,from,cut,to);
    const inset=(to-from)/6;for(const offset of [-3.5,3.5])guide('x',cut,offset,cut+offset,from+inset,cut+offset,to-inset);
   }
-  for(const row of rows)for(const [from,to] of segments(x,gridWidth,63)){
+  for(const row of rows)for(const [from,to] of segments(x,gridWidth,63,width)){
    const cut=y+row;line('y',cut,from,cut,to,cut);
    const inset=(to-from)/6;for(const offset of [-3.5,3.5])guide('y',cut,offset,from+inset,cut+offset,to-inset,cut+offset);
   }
@@ -103,14 +103,14 @@ function tokenPage(opt) {
 }
 function renderPage(page, opt, isPreview=false) {
   if (page.side === 'tokens') return tokenPage(opt);
-  const el = document.createElement('section'); el.className = 'print-page'; el.dataset.side = page.side; el.dataset.sheet = page.sheet;
+  const el = document.createElement('section'); el.className = 'print-page'; el.dataset.side = page.side; el.dataset.sheet = page.sheet;el.dataset.kind=page.kind||'';el.dataset.gap=page.gap||0;
   const calibration=Boolean(page.calibration);
   if(calibration)el.classList.add('lamination-page');
   for (const item of page.items) {
     const bleed = document.createElement('div'); bleed.className = 'bleed';
     const bleedSize=1;
     bleed.style.cssText = `left:${item.x-bleedSize}mm;top:${item.y-bleedSize}mm;width:${63+2*bleedSize}mm;height:${88+2*bleedSize}mm;background:${($('#art-set').value==='minh'||calibration&&page.side==='front'&&item.set==='minh')?'#000':opt.mono?'#fffdf7':'#142a36'}`;
-    const card = document.createElement('div'); card.className = 'printed-card'; card.dataset.card = item.card.id;
+    const card = document.createElement('div'); card.className = 'printed-card'; card.dataset.card = item.card.id;card.dataset.spare=String(Boolean(item.extra));
     card.style.cssText = `left:${item.x}mm;top:${item.y}mm`;
     const img = document.createElement('img'),id=page.side==='back'?'back':item.card.id,set=page.side==='back'?$('#art-set').value:item.set||$('#art-set').value;assignArtwork(img,id,set,opt.mono);img.alt='';img.style.filter=imageLift(opt.mono?0:item.lift??opt.lift,isPreview?'preview-lamination-':'lamination-');
     if(opt.fullBleed){const extended=document.createElement('img');extended.alt='';assignArtwork(extended,id,set,opt.mono,bleedSize);extended.style.cssText=`width:100%;height:100%;filter:${img.style.filter}`;bleed.append(extended);}
@@ -119,7 +119,9 @@ function renderPage(page, opt, isPreview=false) {
     el.append(bleed,card);
   }
   el.insertAdjacentHTML('beforeend', marks(page,opt.paper,opt));
-  el.insertAdjacentHTML('beforeend', `<div class="page-label">HANABI · ${calibration?`ALIGNMENT & COLOUR TEST · ${page.side.toUpperCase()}S · MIDTONE LIFT 0–50% · LONG-EDGE DUPLEX`:`SHEET ${page.sheet} · ${page.side.toUpperCase()}S · ${opt.lift?`MIDTONE LIFT ${opt.lift}% · `:''}LONG-EDGE DUPLEX`} · 100% SCALE</div>`);
+  const spares=page.items.flatMap((item,i)=>item.extra?[page.side==='back'?Math.floor(i/3)*3+3-i%3:i+1]:[]).sort((a,b)=>a-b);
+  const sheetNote=page.suitName?`${page.suitName.toUpperCase()} · ${page.gap?'2 MM GUTTERS':'SHARED CUTS'} · ${spares.length?`SPARE POSITIONS ${spares.join(', ')} · `:''}`:'';
+  el.insertAdjacentHTML('beforeend', `<div class="page-label">HANABI · ${calibration?`ALIGNMENT & COLOUR TEST · ${page.side.toUpperCase()}S · MIDTONE LIFT 0–50% · LONG-EDGE DUPLEX`:`SHEET ${page.sheet} · ${sheetNote}${page.side.toUpperCase()}S · ${opt.lift?`MIDTONE LIFT ${opt.lift}% · `:''}LONG-EDGE DUPLEX`} · 100% SCALE</div>`);
   return el;
 }
 function updatePrint() {
@@ -134,10 +136,12 @@ function updatePrint() {
   $('#lift-value').textContent=`${$('#lamination-strength').value}%`;
   const selection = opt.quantity === 'filtered' ? visibleCards() : selectedCards();
   const samples=calibrationSamples($('#art-set').value,$('#calibration-sample').value,opt.mono);
-  const calibrationPages=calibration?makeSheets(Array.from({length:9},(_,sampleIndex)=>({sampleIndex,id:$('#calibration-sample').value,copies:1})),{...opt,quantity:'catalog'}).map(page=>({...page,calibration:true,items:page.items.map(item=>({...item,...samples[item.card.sampleIndex]}))})):null;
-  pages = calibration ? calibrationPages : tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
+  const calibrationPages=calibration?makeSheets(Array.from({length:9},(_,sampleIndex)=>({sampleIndex,id:$('#calibration-sample').value,copies:1})),{...opt,layout:'compact',gap:2,quantity:'catalog'}).map(page=>({...page,calibration:true,items:page.items.map(item=>({...item,...samples[item.card.sampleIndex]}))})):null;
+  pages = calibration ? calibrationPages : tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,layout:'suits',quantity:opt.quantity==='catalog'?'catalog':'deck'});
   const count = opt.quantity === 'catalog' ? selection.length : selection.reduce((sum,c)=>sum+c.copies,0);
-  $('#print-total').textContent = calibration ? `Alignment & colour test · 9 samples · 1 sheet · ${pages.length} PDF ${pages.length===1?'page':'pages'}` : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
+  const physical=pages.filter(page=>page.side===(opt.side==='back'?'back':'front'));
+  const printed=physical.reduce((sum,page)=>sum+(page.items?.length||0),0),spares=printed-count,sheetCount=new Set(pages.map(page=>page.sheet)).size;
+  $('#print-total').textContent = calibration ? `Alignment & colour test · 9 samples · 1 sheet · ${pages.length} PDF ${pages.length===1?'page':'pages'}` : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${spares>0?`${printed} printed · ${count} required + ${spares} spares`:`${count} ${count===1?'card':'cards'}`} · ${sheetCount} ${sheetCount===1?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
   $('#print-pages').dataset.paper = opt.paper;
   document.documentElement.style.setProperty('--page-width',`${papers[opt.paper].width}mm`);
   document.documentElement.style.setProperty('--page-height',`${papers[opt.paper].height}mm`);
@@ -153,7 +157,7 @@ function preview() {
   el.style.transform = `scale(${scale})`;
   $('#preview-holder').style.width = `${papers[opt.paper].width*96/25.4*scale}px`;
   $('#page-indicator').textContent = `Page ${pageIndex+1} of ${pages.length}`;
-  $('#preview-description').textContent = pages[pageIndex].calibration ? `ALIGNMENT & COLOUR TEST · ${pages[pageIndex].side.toUpperCase()}S` : pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
+  $('#preview-description').textContent = pages[pageIndex].calibration ? `ALIGNMENT & COLOUR TEST · ${pages[pageIndex].side.toUpperCase()}S` : pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].suitName?pages[pageIndex].suitName.toUpperCase()+' · ':''}${pages[pageIndex].side.toUpperCase()}S`;
   $('#previous').disabled = pageIndex === 0; $('#next').disabled = pageIndex === pages.length-1;
 }
 function deckLabels() {

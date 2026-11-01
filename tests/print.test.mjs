@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cards, papers, makeSheets, suits } from '../dist/deck.js';
+import { cards, papers, makeSheets, suits, minhCards } from '../dist/deck.js';
 test('base deck has the correct 50-card distribution',()=>{
   assert.equal(cards.length,25);
   for(const suit of suits) assert.deepEqual(cards.filter(c=>c.suit===suit).flatMap(c=>Array(c.copies).fill(c.rank)),[1,1,1,2,2,3,3,4,4,5]);
@@ -40,4 +40,19 @@ test('sampler and filtered selections preserve selected cards and multiplicities
   const sample=makeSheets(cards,{quantity:'catalog',side:'front'});assert.equal(sample.length,3);assert.equal(sample.flatMap(p=>p.items).length,25);
   const filtered=makeSheets(cards.filter(c=>c.suit.id==='blue'&&c.rank===5));
   assert.equal(filtered.length,2);assert.equal(filtered[0].items.length,1);
+});
+
+test('suit layout puts exact ranks 1–4 on shared-cut sheets and all 5s on one guttered sheet',()=>{
+ for(const selection of [cards,minhCards])for(const paper of ['a4','letter']){
+  const pages=makeSheets(selection,{layout:'suits',paper}),fronts=pages.filter(p=>p.side==='front');
+  const originals=fronts.flatMap(p=>p.items).filter(item=>!item.extra);
+  for(const card of selection)assert.equal(originals.filter(item=>item.card.id===card.id).length,card.copies);
+  for(const front of fronts.filter(p=>p.kind==='suit')){
+   assert.equal(front.items.length,9);assert.equal(front.gap,0);assert.equal(new Set(front.items.map(i=>i.card.suit.id)).size,1);assert.ok(front.items.every(i=>i.card.rank<5));
+   assert.equal(front.items[1].x-front.items[0].x,63);assert.equal(front.items[3].y-front.items[0].y,88);
+  }
+  const fives=fronts.at(-1);assert.equal(fives.kind,'fives');assert.equal(fives.gap,2);assert.equal(fives.items.length,selection===cards?5:6);assert.ok(fives.items.every(i=>i.card.rank===5&&!i.extra));
+  assert.equal(fronts.flatMap(p=>p.items).filter(i=>i.extra).length,selection===cards?0:5);
+  for(let i=0;i<pages.length;i+=2)for(let j=0;j<pages[i].items.length;j++){assert.ok(Math.abs(pages[i].items[j].x+pages[i+1].items[j].x+63-papers[paper].width)<1e-9);assert.equal(pages[i].items[j].extra,pages[i+1].items[j].extra);}
+ }
 });

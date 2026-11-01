@@ -52,17 +52,17 @@ for(const [set,directory] of [['diagonal','diagonal'],['painted','painted'],['li
 test('full set, filtered copies, sampler, separate jobs and tokens',async({page})=>{
   await expect(page.locator('#print-total')).toHaveText('50 cards · 6 sheets · 12 PDF pages');
   await page.getByRole('button',{name:'Next page',exact:true}).click();
-  await expect(page.locator('#preview-description')).toHaveText('A4 · BACKS');
+  await expect(page.locator('#preview-description')).toHaveText('A4 · RED · BACKS');
   await page.getByLabel('What to include').selectOption('catalog');
-  await expect(page.locator('#print-total')).toHaveText('25 cards · 3 sheets · 6 PDF pages');
+  await expect(page.locator('#print-total')).toHaveText('50 printed · 25 required + 25 spares · 6 sheets · 12 PDF pages');
   await page.getByLabel('Print sides').selectOption('front');
-  await expect(page.locator('#print-pages .print-page')).toHaveCount(3);
+  await expect(page.locator('#print-pages .print-page')).toHaveCount(6);
   await browse(page);await page.getByRole('button',{name:'Red',exact:true}).click();
   await page.getByLabel('Value',{exact:true}).selectOption('1');
   await page.getByLabel('What to include').selectOption('filtered');
-  await expect(page.locator('#print-total')).toHaveText('3 cards · 1 sheet · 1 PDF page');
+  await expect(page.locator('#print-total')).toHaveText('9 printed · 3 required + 6 spares · 1 sheet · 1 PDF page');
   await page.getByLabel('Print sides').selectOption('back');
-  await expect(page.locator('#print-pages .printed-card img')).toHaveCount(3);
+  await expect(page.locator('#print-pages .printed-card img')).toHaveCount(9);
   await page.getByLabel('What to include').selectOption('tokens');
   await expect(page.getByLabel('Print sides')).toBeDisabled();
   await expect(page.locator('#print-pages .token')).toHaveCount(11);

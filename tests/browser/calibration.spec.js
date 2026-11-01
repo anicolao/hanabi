@@ -3,8 +3,8 @@ test('Minh registration diamonds mark occupied corners and follow duplex offsets
  await page.goto('/?deck=minh');
  const diamonds=page.locator('#print-pages .registration-diamond');
  await expect(page.locator('#print-pages .print-page').first().locator('.registration-diamond')).toHaveCount(16);
- await expect(page.locator('#print-pages .print-page').nth(12).locator('.registration-diamond')).toHaveCount(4);
- await expect(page.locator('#print-pages .print-page').nth(13).locator('.registration-diamond')).toHaveCount(4);
+ await expect(page.locator('#print-pages .print-page').nth(12).locator('.registration-diamond')).toHaveCount(24);
+ await expect(page.locator('#print-pages .print-page').nth(13).locator('.registration-diamond')).toHaveCount(24);
  await page.getByText('Adjust double-sided alignment',{exact:true}).click();
  await page.getByLabel('Move right (mm)').fill('1.25');await page.getByLabel('Move right (mm)').blur();
  await page.getByLabel('Move down (mm)').fill('-2.5');await page.getByLabel('Move down (mm)').blur();
@@ -62,7 +62,7 @@ test('combined calibration defaults to multicolour for every artwork and retains
  await page.getByLabel('Move right (mm)').fill('1.25');await page.getByLabel('Move right (mm)').blur();
  await page.getByLabel('Move down (mm)').fill('-2.5');await page.getByLabel('Move down (mm)').blur();
  const corners=await page.locator('#print-pages .print-page').evaluateAll(pages=>pages.map(page=>[...page.querySelectorAll('.registration-diamond')].map(mark=>{const m=mark.getAttribute('d').match(/^M ([\d.-]+) ([\d.-]+)/);return {x:Number(m[1]),y:Number(m[2])+1};})));
- expect(corners[0]).toHaveLength(16);expect(corners[1]).toHaveLength(16);
+ expect(corners[0]).toHaveLength(36);expect(corners[1]).toHaveLength(36);
  for(const front of corners[0])expect(corners[1]).toContainEqual({x:210-front.x+1.25,y:front.y-2.5});
  await page.getByLabel('Colour adjustment').selectOption('lamination');await page.getByRole('slider',{name:'Midtone lift',exact:true}).fill('25');
  for(const view of ['deck','catalog','filtered','calibration','tokens','calibration','deck']){

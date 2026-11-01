@@ -22,13 +22,13 @@ test('7 mm cutter channel ticks flank centre cuts by 3.5 mm on both sides and fo
  }
 });
 
-test('Letter centre marks occupy ninety percent of narrower gutters and stay inside printable margins',async({page})=>{
+test('Letter outer crop marks extend beyond the bleed and stay inside printable margins',async({page})=>{
  await page.goto('/?deck=minh');await page.getByLabel('Paper size').selectOption('letter');await page.getByLabel('Card edges').selectOption('full-bleed');await page.getByLabel('Print sides').selectOption('back');
  const geometry=await page.locator('#print-pages .print-page').first().evaluate(el=>{
   const paths=[...el.querySelectorAll('.centre-crop-mark')].map(mark=>{const [,x1,y1,x2,y2]=mark.getAttribute('d').match(/^M([\d.-]+) ([\d.-]+)L([\d.-]+) ([\d.-]+)/).map(Number);return {x1,y1,x2,y2,length:Math.hypot(x2-x1,y2-y1)};});
   return {paths,halo:el.querySelector('.mark-halo')?.getAttribute('stroke')};
  });
- expect(geometry.halo).toBe('white');expect(geometry.paths).toHaveLength(48);
- for(const mark of geometry.paths){expect(Math.min(Math.abs(mark.length-.9),Math.abs(mark.length-1.8))).toBeLessThan(.00001);for(const y of [mark.y1,mark.y2]){expect(y).toBeGreaterThanOrEqual(4.7);expect(y).toBeLessThanOrEqual(279.4-4.7);}}
+ expect(geometry.halo).toBe('white');expect(geometry.paths).toHaveLength(16);
+ for(const mark of geometry.paths){expect(mark.length).toBeGreaterThan(1);expect(mark.length).toBeLessThanOrEqual(3.5);for(const y of [mark.y1,mark.y2]){expect(y).toBeGreaterThanOrEqual(3.2);expect(y).toBeLessThanOrEqual(279.4-3.2);}}
  await page.emulateMedia({media:'print'});const pdf=(await page.pdf({preferCSSPageSize:true,printBackground:true})).toString('latin1');expect((pdf.match(/\/Type\s*\/Page\b/g)||[]).length).toBe(7);
 });
