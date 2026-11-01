@@ -69,12 +69,12 @@ function options() {
 }
 function marks(page, paper, opt) {
   const { width, height } = papers[paper];
-  const gridWidth=opt.fullBleed?195:189,gridHeight=opt.fullBleed?179:264;
+  const gridWidth=opt.fullBleed?195:189,gridHeight=opt.fullBleed?270:264;
   const x = (width-gridWidth)/2 + (page.side === 'back' ? opt.x : 0), y = (height-gridHeight)/2 + (page.side === 'back' ? opt.y : 0);
   let lines = '', guides='';
   const guide=(axis,cut,offset,x1,y1,x2,y2)=>{guides+=`<path class="cutter-channel-mark" data-axis="${axis}" data-cut="${cut}" data-offset="${offset}" d="M${x1} ${y1}L${x2} ${y2}"/>`;};
   const line = (x1,y1,x2,y2) => { lines += `<path d="M${x1} ${y1}L${x2} ${y2}"/>`; };
-  const cols=opt.fullBleed?[0,63,66,129,132,195]:[0,63,126,189],rows=opt.fullBleed?[0,88,91,179]:[0,88,176,264];
+  const cols=opt.fullBleed?[0,63,66,129,132,195]:[0,63,126,189],rows=opt.fullBleed?[0,88,91,179,182,270]:[0,88,176,264];
   for(const col of cols){
    const cut=x+col;line(cut,y-3.5,cut,y-1.5);line(cut,y+gridHeight+1.5,cut,y+gridHeight+3.5);
    for(const offset of [-3.5,3.5]){guide('x',cut,offset,cut+offset,y-3.1,cut+offset,y-1.9);guide('x',cut,offset,cut+offset,y+gridHeight+1.9,cut+offset,y+gridHeight+3.1);}
@@ -120,7 +120,7 @@ function updatePrint() {
   const calibration=$('#quantity').value==='calibration';
   const opt = options(), tokens = opt.quantity === 'tokens';
   $('#side').disabled = tokens;
-  $('#quantity option[value=calibration]').textContent=`Alignment & colour test · ${opt.fullBleed?'2 sheet pairs':'1 sheet pair'}`;
+  $('#quantity option[value=calibration]').textContent='Alignment & colour test · 1 sheet pair';
   $('.print-note').innerHTML=calibration?'Print at 100% size. Use a front/back pair, flipped on the long edge, to check the diamonds against a light. In full colour, laminate the sheet and compare the labelled lift samples.':tokens?'Print one-sided at 100% size.':'63 × 88 mm cards. Print at 100% size.<br>For duplex: flip on the long edge.';
   $('#sample-control').hidden=!calibration;
   $('#lift-control').hidden=$('#colour-profile').value!=='lamination';
@@ -131,7 +131,7 @@ function updatePrint() {
   const calibrationPages=calibration?makeSheets(Array.from({length:9},(_,sampleIndex)=>({sampleIndex,id:$('#calibration-sample').value,copies:1})),{...opt,quantity:'catalog'}).map(page=>({...page,calibration:true,items:page.items.map(item=>({...item,...samples[item.card.sampleIndex]}))})):null;
   pages = calibration ? calibrationPages : tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
   const count = opt.quantity === 'catalog' ? selection.length : selection.reduce((sum,c)=>sum+c.copies,0);
-  $('#print-total').textContent = calibration ? `Alignment & colour test · 9 samples · ${opt.fullBleed?'2 sheets':'1 sheet'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}` : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/(opt.fullBleed?6:9))} ${count<=(opt.fullBleed?6:9)?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
+  $('#print-total').textContent = calibration ? `Alignment & colour test · 9 samples · 1 sheet · ${pages.length} PDF ${pages.length===1?'page':'pages'}` : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
   $('#print-pages').dataset.paper = opt.paper;
   document.documentElement.style.setProperty('--page-width',`${papers[opt.paper].width}mm`);
   document.documentElement.style.setProperty('--page-height',`${papers[opt.paper].height}mm`);

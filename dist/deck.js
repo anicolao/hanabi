@@ -18,7 +18,7 @@ export const papers = { a4: { width: 210, height: 297 }, letter: { width: 215.9,
 export function makeSheets(selection = cards, { paper = 'a4', quantity = 'deck', side = 'both', x = 0, y = 0, fullBleed = false } = {}) {
   const { width, height } = papers[paper];
   const deck = selection.flatMap(card => Array.from({ length: quantity === 'deck' ? card.copies : 1 }, () => card));
-  const pages = [], capacity=fullBleed?6:9, gap=fullBleed?3:0, gridWidth=189+2*gap, gridHeight=fullBleed?179:264;
+  const pages = [], capacity=9, gap=fullBleed?3:0, gridWidth=189+2*gap, gridHeight=264+2*gap;
   for (let i = 0; i < deck.length; i += capacity) {
     const front = deck.slice(i, i + capacity).map((card, j) => ({ card, x: (width - gridWidth) / 2 + (j % 3) * (63+gap), y: (height - gridHeight) / 2 + Math.floor(j / 3) * (88+gap) }));
     if (side !== 'back') pages.push({ sheet: i / capacity + 1, side: 'front', items: front });

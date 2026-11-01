@@ -6,7 +6,7 @@ test('7 mm cutter channel ticks flank centre cuts by 3.5 mm on both sides and fo
   const marks=await page.locator('#print-pages .print-page').evaluateAll(pages=>pages.slice(0,2).map(page=>[...page.querySelectorAll('.cutter-channel-mark')].map(el=>{
    const [,x,y]=el.getAttribute('d').match(/^M([\d.-]+) ([\d.-]+)/);return {axis:el.dataset.axis,cut:Number(el.dataset.cut),offset:Number(el.dataset.offset),x:Number(x),y:Number(y)};
   })));
-  expect(marks[0]).toHaveLength(edges==='full-bleed'?40:32);
+  expect(marks[0]).toHaveLength(edges==='full-bleed'?48:32);
   for(const side of marks)for(const mark of side){expect(Math.abs(mark.offset)).toBe(3.5);expect(mark[mark.axis]).toBeCloseTo(mark.cut+mark.offset,8);expect(side.some(other=>other.axis===mark.axis&&other.cut===mark.cut&&other.offset===-mark.offset)).toBe(true);}
   const frontCuts=axis=>[...new Set(marks[0].filter(m=>m.axis===axis).map(m=>m.cut))];
   for(const axis of ['x','y']){const cuts=[...new Set(marks[1].filter(m=>m.axis===axis).map(m=>m.cut))];for(const cut of frontCuts(axis))expect(cuts.some(back=>Math.abs(back-(axis==='x'?cut+1.25:cut-2.5))<1e-8)).toBe(true);}
