@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+test.beforeEach(async({page})=>{await page.goto('/');await page.getByLabel('Card edges').selectOption('framed');});
 test('Minh share link prints exactly 55 cards and switches suits and quantities correctly',async({page})=>{
  await page.goto('/?deck=minh');
  await expect(page.locator('#art-set')).toHaveValue('minh');

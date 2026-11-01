@@ -1,6 +1,7 @@
 import { test,expect } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+test.beforeEach(async({page})=>{await page.goto('/');await page.getByLabel('Card edges').selectOption('framed');});
 const inspectZip=String.raw`import sys,zipfile,json,struct,zlib,hashlib,collections
 with zipfile.ZipFile(sys.argv[1]) as z:
  assert z.testzip() is None

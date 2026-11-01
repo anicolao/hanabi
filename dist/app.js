@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import { cardsForSet, papers, makeSheets, artworkPath } from './deck.js';
-import {artworkUrl,setArtwork} from './full-bleed.js';
+import {artworkUrl,setArtwork,sharedSheetUrl} from './full-bleed.js';
 import { calibrationSamples } from './calibration.js';
 import {printFilters,imageLift,clampLift} from './lamination.js';
 const $ = selector => document.querySelector(selector);
@@ -8,6 +8,8 @@ let activeSuit = 'all', activeRank = 'all', pageIndex = 0, pages = [];
 const path = (id, mono = false) => artworkPath(id, $('#art-set').value, mono);
 const selectedCards = () => cardsForSet($('#art-set').value);
 if(new URLSearchParams(location.search).get('deck')==='minh') $('#art-set').value='minh';
+const savedEdges=sessionStorage.getItem('hanabi-card-edges');
+if(['framed','full-bleed'].includes(savedEdges))$('#card-edges').value=savedEdges;
 const fullBleed=()=>$('#card-edges').value==='full-bleed';
 const assignArtwork=(img,id,set=$('#art-set').value,mono=$('#ink').value==='mono',bleed=0)=>setArtwork(img,{id,set,mono,fullBleed:fullBleed(),bleed});
 const chosenLift=()=>$('#ink').value==='colour'&&$('#colour-profile').value==='lamination'?clampLift($('#lamination-strength').value):0;
@@ -109,14 +111,18 @@ function renderPage(page, opt, isPreview=false) {
   for (const item of page.items) {
     const bleed = document.createElement('div'); bleed.className = 'bleed';
     const bleedSize=1;
-    bleed.style.cssText = `left:${item.x-bleedSize}mm;top:${item.y-bleedSize}mm;width:${63+2*bleedSize}mm;height:${88+2*bleedSize}mm;background:${($('#art-set').value==='minh'||calibration&&page.side==='front'&&item.set==='minh')?'#000':opt.mono?'#fffdf7':'#142a36'}`;
-    const card = document.createElement('div'); card.className = 'printed-card'; card.dataset.card = item.card.id;card.dataset.spare=String(Boolean(item.extra));
+    bleed.style.cssText = `left:${item.x-bleedSize}mm;top:${item.y-bleedSize}mm;width:${63+2*bleedSize}mm;height:${88+2*bleedSize}mm;background:${opt.fullBleed?'transparent':($('#art-set').value==='minh'||calibration&&page.side==='front'&&item.set==='minh')?'#000':opt.mono?'#fffdf7':'#142a36'}`;
+    const card = document.createElement('div'); card.className = 'printed-card'; card.dataset.card = item.card.id;card.dataset.spare=String(Boolean(item.extra));card.dataset.edges=opt.fullBleed?'full-bleed':'framed';
     card.style.cssText = `left:${item.x}mm;top:${item.y}mm`;
     const img = document.createElement('img'),id=page.side==='back'?'back':item.card.id,set=page.side==='back'?$('#art-set').value:item.set||$('#art-set').value;assignArtwork(img,id,set,opt.mono);img.alt='';img.style.filter=imageLift(opt.mono?0:item.lift??opt.lift,isPreview?'preview-lamination-':'lamination-');
     if(opt.fullBleed){const extended=document.createElement('img');extended.alt='';assignArtwork(extended,id,set,opt.mono,bleedSize);extended.style.cssText=`width:100%;height:100%;filter:${img.style.filter}`;bleed.append(extended);}
     card.append(img);
     if(calibration){const label=document.createElement('div');label.className='sample-label';label.textContent=item.label;card.append(label);card.dataset.lift=item.lift;}
     el.append(bleed,card);
+  }
+  if(opt.fullBleed&&page.kind==='suit'&&!calibration){
+    const art=document.createElement('img');art.className='sheet-art';art.alt='';art.style.filter=imageLift(opt.lift,isPreview?'preview-lamination-':'lamination-');
+    art.artworkReady=sharedSheetUrl(page,{paper:opt.paper,set:$('#art-set').value,mono:opt.mono}).then(async url=>{art.src=url;await art.decode();el.classList.add('sheet-composited');});art.artworkReady.catch(()=>{});el.prepend(art);
   }
   el.insertAdjacentHTML('beforeend', marks(page,opt.paper,opt));
   const spares=page.items.flatMap((item,i)=>item.extra?[page.side==='back'?Math.floor(i/3)*3+3-i%3:i+1]:[]).sort((a,b)=>a-b);
@@ -172,7 +178,7 @@ $('#art-set').addEventListener('change', () => {
  for(const chip of document.querySelectorAll('.chip')){const active=chip.dataset.suit==='all';chip.classList.toggle('active',active);chip.setAttribute('aria-pressed',String(active));}
  $('#mpc-status').textContent='';deckLabels();gallery();updatePrint();
 });
-$('#card-edges').addEventListener('change',()=>{gallery();updatePrint();});
+$('#card-edges').addEventListener('change',()=>{sessionStorage.setItem('hanabi-card-edges',$('#card-edges').value);gallery();updatePrint();});
 $('#ink').addEventListener('change', () => { gallery(); updatePrint(); });
 for (const selector of ['#paper','#quantity','#side','#offset-x','#offset-y']) $(selector).addEventListener('change',updatePrint);
 for(const id of ['#colour-profile','#calibration-sample'])$(id).addEventListener('change',updatePrint);

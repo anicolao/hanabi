@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+test.beforeEach(async({page})=>{await page.goto('/');await page.getByLabel('Card edges').selectOption('framed');});
 test('Minh registration diamonds mark occupied corners and follow duplex offsets',async({page})=>{
  await page.goto('/?deck=minh');
  const diamonds=page.locator('#print-pages .registration-diamond');

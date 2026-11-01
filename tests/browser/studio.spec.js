@@ -5,7 +5,7 @@ const pdfPages = buffer => {
   return {count:(text.match(/\/Type\s*\/Page\b/g)||[]).length,sizes};
 };
 const browse=async page=>{await page.locator('#gallery > summary').click();};
-test.beforeEach(async({page})=>{await page.goto('/');});
+test.beforeEach(async({page})=>{await page.goto('/');await page.getByLabel('Card edges').selectOption('framed');});
 test('opens directly to printing with no marketing or rules sections',async({page})=>{
   await expect(page.getByRole('heading',{name:'Hanabi Print cards'})).toBeVisible();
   await expect(page.getByRole('button',{name:'Print / save PDF'})).toBeInViewport();

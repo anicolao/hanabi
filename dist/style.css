@@ -11,4 +11,8 @@
 
 .mpc-button{width:100%;min-height:42px;margin-top:10px;border:1px solid #214e62;border-radius:3px;background:white;color:#214e62;font-size:13px;font-weight:600}.mpc-button:hover{background:#f0f5f6}.mpc-button:disabled{opacity:.6}.mpc-note,.mpc-status{font-size:11px;color:var(--muted);margin-top:9px;line-height:1.5}.mpc-status:empty{display:none}.print-help a{text-decoration:underline}
 
-[hidden]{display:none!important}.lamination-help{font-size:11px;color:var(--muted);margin:-8px 0 18px;line-height:1.5}.print-settings #lift-control{gap:4px}.print-settings input[type=range]{padding:0;min-height:25px}.sample-label{position:absolute;bottom:0;left:0;width:100%;height:3mm;line-height:3mm;font:6pt/3mm Arial,sans-serif;background:black;color:white;text-align:center;z-index:3}.print-filters{pointer-events:none}
+[hidden]{display:none!important}.lamination-help{font-size:11px;color:var(--muted);margin:-8px 0 18px;line-height:1.5}.print-settings #lift-control{gap:4px}.print-settings input[type=range]{padding:0;min-height:25px}.sample-label{position:absolute;bottom:0;left:0;width:100%;height:3mm;line-height:3mm;font:6pt/3mm Arial,sans-serif;background:transparent;color:black;-webkit-text-stroke:.15mm white;paint-order:stroke fill;font-weight:700;text-align:center;z-index:3}.print-filters{pointer-events:none}
+
+.printed-card[data-edges=full-bleed]{background:transparent}
+
+.sheet-art{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}.sheet-composited .printed-card>img{visibility:hidden}
