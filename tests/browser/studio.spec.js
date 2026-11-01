@@ -42,9 +42,9 @@ for(const [set,directory] of [['diagonal','diagonal'],['painted','painted'],['li
   await page.locator('.card-tile').first().click();
   await expect(page.locator('#download-card')).toHaveAttribute('href',`assets/${directory}/red-1-mono.svg`);
   await page.keyboard.press('Escape');
-  await page.getByLabel('What to include').selectOption('test');
+  await page.getByLabel('What to include').selectOption('calibration');
   await page.getByLabel('Print sides').selectOption('back');
-  await expect(page.locator('#print-total')).toHaveText('9 cards · 1 sheet · 1 PDF page');
+  await expect(page.locator('#print-total')).toHaveText('Alignment & colour test · 9 samples · 1 sheet · 1 PDF page');
   await expect(page.locator('#preview-holder img').first()).toHaveJSProperty('complete',true);
   expect(await page.locator('#preview-holder img').first().evaluate(img=>img.naturalWidth)).toBeGreaterThan(0);
  });

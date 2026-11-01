@@ -9,9 +9,11 @@ const selectedCards = () => cardsForSet($('#art-set').value);
 if(new URLSearchParams(location.search).get('deck')==='minh') $('#art-set').value='minh';
 const chosenLift=()=>$('#ink').value==='colour'&&$('#colour-profile').value==='lamination'?clampLift($('#lamination-strength').value):0;
 function sampleOptions(){
- const suits=[...new Map(selectedCards().map(c=>[c.suit.id,c.suit])).values()];
- $('#calibration-sample').replaceChildren(...[...suits.map(s=>({id:`${s.id}-5`,name:`${s.name} 5`})),{id:'back',name:'Shared back'}].map(s=>new Option(s.name,s.id)));
- $('#calibration-sample').value=suits.some(s=>s.id==='multicolour')?'multicolour-5':`${suits[0].id}-5`;
+ const previous=$('#calibration-sample').value;
+ const suits=[...new Map(selectedCards().map(c=>[c.suit.id,c.suit])).values()].filter(s=>s.id!=='multicolour');
+ const samples=[{id:'multicolour-5',name:'Multicolour 5'},...suits.map(s=>({id:`${s.id}-5`,name:`${s.name} 5`})),{id:'back',name:'Shared back'}];
+ $('#calibration-sample').replaceChildren(...samples.map(s=>new Option(s.name,s.id)));
+ $('#calibration-sample').value=samples.some(s=>s.id===previous)?previous:'multicolour-5';
 }
 sampleOptions();
 const visibleCards = () => selectedCards().filter(card => (activeSuit === 'all' || card.suit.id === activeSuit) && (activeRank === 'all' || card.rank === Number(activeRank)));
@@ -82,43 +84,37 @@ function tokenPage(opt) {
 function renderPage(page, opt, isPreview=false) {
   if (page.side === 'tokens') return tokenPage(opt);
   const el = document.createElement('section'); el.className = 'print-page'; el.dataset.side = page.side; el.dataset.sheet = page.sheet;
-  const calibration=page.side==='calibration';
+  const calibration=Boolean(page.calibration);
   if(calibration)el.classList.add('lamination-page');
   for (const item of page.items) {
     const bleed = document.createElement('div'); bleed.className = 'bleed';
-    bleed.style.cssText = `left:${item.x-1}mm;top:${item.y-1}mm;width:65mm;height:90mm;background:${$('#art-set').value==='minh'?'#000':opt.mono?'#fffdf7':'#142a36'}`;
+    bleed.style.cssText = `left:${item.x-1}mm;top:${item.y-1}mm;width:65mm;height:90mm;background:${($('#art-set').value==='minh'||calibration&&page.side==='front'&&item.set==='minh')?'#000':opt.mono?'#fffdf7':'#142a36'}`;
     const card = document.createElement('div'); card.className = 'printed-card'; card.dataset.card = item.card.id;
     card.style.cssText = `left:${item.x}mm;top:${item.y}mm`;
-    const img = document.createElement('img'); img.src = path(page.side === 'back' ? 'back' : item.card.id, opt.mono); img.alt = '';img.style.filter=imageLift(item.lift??opt.lift,isPreview?'preview-lamination-':'lamination-');
+    const img = document.createElement('img'); img.src = page.side==='back'?path('back',opt.mono):item.path||path(item.card.id,opt.mono); img.alt = '';img.style.filter=imageLift(opt.mono?0:item.lift??opt.lift,isPreview?'preview-lamination-':'lamination-');
     card.append(img);
     if(calibration){const label=document.createElement('div');label.className='sample-label';label.textContent=item.label;card.append(label);card.dataset.lift=item.lift;}
     el.append(bleed,card);
   }
   el.insertAdjacentHTML('beforeend', marks(page,opt.paper,opt));
-  el.insertAdjacentHTML('beforeend', `<div class="page-label">HANABI · ${calibration?'LAMINATION CALIBRATION · MIDTONE LIFT 0–50% · SINGLE-SIDED':`SHEET ${page.sheet} · ${page.side.toUpperCase()}S · ${opt.lift?`MIDTONE LIFT ${opt.lift}% · `:''}LONG-EDGE DUPLEX`} · 100% SCALE</div>`);
+  el.insertAdjacentHTML('beforeend', `<div class="page-label">HANABI · ${calibration?`ALIGNMENT & COLOUR TEST · ${page.side.toUpperCase()}S · MIDTONE LIFT 0–50% · LONG-EDGE DUPLEX`:`SHEET ${page.sheet} · ${page.side.toUpperCase()}S · ${opt.lift?`MIDTONE LIFT ${opt.lift}% · `:''}LONG-EDGE DUPLEX`} · 100% SCALE</div>`);
   return el;
 }
 function updatePrint() {
   const calibration=$('#quantity').value==='calibration';
-  if(calibration)$('#ink').value='colour';
   const opt = options(), tokens = opt.quantity === 'tokens';
-  $('#side').disabled = tokens || calibration;
-  $('#side-control').hidden=calibration;
-  $('.alignment').hidden=calibration;
-  $('.print-note').innerHTML=calibration?'Print one-sided at 100% size. Laminate the whole sheet, compare the labelled samples, then apply the chosen lift to the deck.':tokens?'Print one-sided at 100% size.':'63 × 88 mm cards. Print at 100% size.<br>For duplex: flip on the long edge.';
-  $('#ink').disabled = calibration;
+  $('#side').disabled = tokens;
+  $('.print-note').innerHTML=calibration?'Print at 100% size. Use a front/back pair, flipped on the long edge, to check the diamonds against a light. In full colour, laminate the sheet and compare the labelled lift samples.':tokens?'Print one-sided at 100% size.':'63 × 88 mm cards. Print at 100% size.<br>For duplex: flip on the long edge.';
   $('#sample-control').hidden=!calibration;
-  $('#profile-control').hidden=calibration||opt.mono;
-  $('#lift-control').hidden=calibration||opt.mono||$('#colour-profile').value!=='lamination';
-  $('#lamination-help').hidden=opt.mono||(!calibration&&$('#colour-profile').value!=='lamination');
+  $('#lift-control').hidden=$('#colour-profile').value!=='lamination';
+  $('#lamination-help').hidden=!calibration&&$('#colour-profile').value!=='lamination';
   $('#lift-value').textContent=`${$('#lamination-strength').value}%`;
-  const selection = opt.quantity === 'filtered' ? visibleCards() : opt.quantity === 'test' ? selectedCards().slice(0,4) : selectedCards();
-  const samples=calibrationSamples($('#art-set').value,$('#calibration-sample').value);
-  const calibrationPage=calibration?makeSheets(Array.from({length:9},()=>({id:$('#calibration-sample').value,copies:1})),{paper:opt.paper,side:'front',quantity:'catalog'})[0]:null;
-  if(calibrationPage){calibrationPage.side='calibration';calibrationPage.items=calibrationPage.items.map((item,i)=>({...item,...samples[i]}));}
-  pages = calibration ? [calibrationPage] : tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
+  const selection = opt.quantity === 'filtered' ? visibleCards() : selectedCards();
+  const samples=calibrationSamples($('#art-set').value,$('#calibration-sample').value,opt.mono);
+  const calibrationPages=calibration?makeSheets(Array.from({length:9},()=>({id:$('#calibration-sample').value,copies:1})),{...opt,quantity:'catalog'}).map(page=>({...page,calibration:true,items:page.items.map((item,i)=>({...item,...samples[i]}))})):null;
+  pages = calibration ? calibrationPages : tokens ? [{side:'tokens'}] : makeSheets(selection,{...opt,quantity:opt.quantity==='catalog'?'catalog':'deck'});
   const count = opt.quantity === 'catalog' ? selection.length : selection.reduce((sum,c)=>sum+c.copies,0);
-  $('#print-total').textContent = calibration ? 'Lamination calibration · 9 samples · 1 sheet · 1 PDF page' : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
+  $('#print-total').textContent = calibration ? `Alignment & colour test · 9 samples · 1 sheet · ${pages.length} PDF ${pages.length===1?'page':'pages'}` : tokens ? '11 tokens · 1 sheet · 1 PDF page' : `${count} ${count===1?'card':'cards'} · ${Math.ceil(count/9)} ${count<=9?'sheet':'sheets'} · ${pages.length} PDF ${pages.length===1?'page':'pages'}`;
   $('#print-pages').dataset.paper = opt.paper;
   document.documentElement.style.setProperty('--page-width',`${papers[opt.paper].width}mm`);
   document.documentElement.style.setProperty('--page-height',`${papers[opt.paper].height}mm`);
@@ -134,7 +130,7 @@ function preview() {
   el.style.transform = `scale(${scale})`;
   $('#preview-holder').style.width = `${papers[opt.paper].width*96/25.4*scale}px`;
   $('#page-indicator').textContent = `Page ${pageIndex+1} of ${pages.length}`;
-  $('#preview-description').textContent = pages[pageIndex].side === 'calibration' ? 'LAMINATION CALIBRATION · SINGLE SIDE' : pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
+  $('#preview-description').textContent = pages[pageIndex].calibration ? `ALIGNMENT & COLOUR TEST · ${pages[pageIndex].side.toUpperCase()}S` : pages[pageIndex].side === 'tokens' ? 'TOKENS · SINGLE SIDE' : `${opt.paper==='a4'?'A4':'LETTER'} · ${pages[pageIndex].side.toUpperCase()}S`;
   $('#previous').disabled = pageIndex === 0; $('#next').disabled = pageIndex === pages.length-1;
 }
 function deckLabels() {
