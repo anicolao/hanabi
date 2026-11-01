@@ -71,17 +71,24 @@ function marks(page, paper, opt) {
   const { width, height } = papers[paper];
   const gridWidth=opt.fullBleed?195:189,gridHeight=opt.fullBleed?179:264;
   const x = (width-gridWidth)/2 + (page.side === 'back' ? opt.x : 0), y = (height-gridHeight)/2 + (page.side === 'back' ? opt.y : 0);
-  let lines = '';
+  let lines = '', guides='';
+  const guide=(axis,cut,offset,x1,y1,x2,y2)=>{guides+=`<path class="cutter-channel-mark" data-axis="${axis}" data-cut="${cut}" data-offset="${offset}" d="M${x1} ${y1}L${x2} ${y2}"/>`;};
   const line = (x1,y1,x2,y2) => { lines += `<path d="M${x1} ${y1}L${x2} ${y2}"/>`; };
   const cols=opt.fullBleed?[0,63,66,129,132,195]:[0,63,126,189],rows=opt.fullBleed?[0,88,91,179]:[0,88,176,264];
-  for(const col of cols){line(x+col,y-3.5,x+col,y-1.5);line(x+col,y+gridHeight+1.5,x+col,y+gridHeight+3.5);}
-  for(const row of rows){line(x-3.5,y+row,x-1.5,y+row);line(x+gridWidth+1.5,y+row,x+gridWidth+3.5,y+row);}
+  for(const col of cols){
+   const cut=x+col;line(cut,y-3.5,cut,y-1.5);line(cut,y+gridHeight+1.5,cut,y+gridHeight+3.5);
+   for(const offset of [-3.5,3.5]){guide('x',cut,offset,cut+offset,y-3.1,cut+offset,y-1.9);guide('x',cut,offset,cut+offset,y+gridHeight+1.9,cut+offset,y+gridHeight+3.1);}
+  }
+  for(const row of rows){
+   const cut=y+row;line(x-3.5,cut,x-1.5,cut);line(x+gridWidth+1.5,cut,x+gridWidth+3.5,cut);
+   for(const offset of [-3.5,3.5]){guide('y',cut,offset,x-3.1,cut+offset,x-1.9,cut+offset);guide('y',cut,offset,x+gridWidth+1.9,cut+offset,x+gridWidth+3.1,cut+offset);}
+  }
   // Two-millimetre white diamonds mark occupied card corners, matching the Pantheon sample.
   let diamonds = '';
   const corners=new Map();
   for(const item of page.items)for(const [cx,cy] of [[item.x,item.y],[item.x+63,item.y],[item.x,item.y+88],[item.x+63,item.y+88]])corners.set(`${cx},${cy}`,[cx,cy]);
   for(const [cx,cy] of corners.values())diamonds+=`<path class="registration-diamond" d="M ${cx} ${cy-1} l 1 1 l -1 1 l -1 -1 Z" fill="white"/>`;
-  return `<svg class="crop-marks" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="black" stroke-width=".15">${lines}</g>${diamonds}</svg>`;
+  return `<svg class="crop-marks" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="black" stroke-width=".15">${lines}</g><g fill="none" stroke="#666" stroke-width=".12">${guides}</g>${diamonds}</svg>`;
 }
 function tokenPage(opt) {
   const el = document.createElement('section'); el.className = `print-page token-page${opt.mono ? ' mono' : ''}`;
