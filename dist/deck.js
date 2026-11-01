@@ -15,14 +15,14 @@ export const blackSuit = { id: 'black', name: 'Black', motif: 'Hexagon', symbol:
 export const minhCards = [...cards.filter(card => card.suit.id !== 'white'), ...Array.from({length:5}, (_, i) => ({id:`multicolour-${i+1}`, suit:multicolourSuit, rank:i+1, copies:1})), ...Array.from({length:5}, (_, i) => ({id:`black-${i+1}`, suit:blackSuit, rank:i+1, copies:multiplicities[i+1]}))];
 export function cardsForSet(set = 'diagonal') { return set === 'minh' ? minhCards : cards; }
 export const papers = { a4: { width: 210, height: 297 }, letter: { width: 215.9, height: 279.4 } };
-export function makeSheets(selection = cards, { paper = 'a4', quantity = 'deck', side = 'both', x = 0, y = 0 } = {}) {
+export function makeSheets(selection = cards, { paper = 'a4', quantity = 'deck', side = 'both', x = 0, y = 0, fullBleed = false } = {}) {
   const { width, height } = papers[paper];
   const deck = selection.flatMap(card => Array.from({ length: quantity === 'deck' ? card.copies : 1 }, () => card));
-  const pages = [];
-  for (let i = 0; i < deck.length; i += 9) {
-    const front = deck.slice(i, i + 9).map((card, j) => ({ card, x: (width - 189) / 2 + (j % 3) * 63, y: (height - 264) / 2 + Math.floor(j / 3) * 88 }));
-    if (side !== 'back') pages.push({ sheet: i / 9 + 1, side: 'front', items: front });
-    if (side !== 'front') pages.push({ sheet: i / 9 + 1, side: 'back', items: front.map(item => ({ ...item, x: width - item.x - 63 + x, y: item.y + y })) });
+  const pages = [], capacity=fullBleed?6:9, gap=fullBleed?3:0, gridWidth=189+2*gap, gridHeight=fullBleed?179:264;
+  for (let i = 0; i < deck.length; i += capacity) {
+    const front = deck.slice(i, i + capacity).map((card, j) => ({ card, x: (width - gridWidth) / 2 + (j % 3) * (63+gap), y: (height - gridHeight) / 2 + Math.floor(j / 3) * (88+gap) }));
+    if (side !== 'back') pages.push({ sheet: i / capacity + 1, side: 'front', items: front });
+    if (side !== 'front') pages.push({ sheet: i / capacity + 1, side: 'back', items: front.map(item => ({ ...item, x: width - item.x - 63 + x, y: item.y + y })) });
   }
   return pages;
 }
